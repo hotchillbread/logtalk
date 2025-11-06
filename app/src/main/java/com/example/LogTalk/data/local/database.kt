@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun userProfileDao(): UserDao
+    abstract fun userDao(): UserDao
     abstract fun titleDao(): TitleDao
     abstract fun messageDao(): MessageDao
 }

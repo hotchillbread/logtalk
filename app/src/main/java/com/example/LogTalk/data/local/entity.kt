@@ -11,7 +11,7 @@ data class Title(
     val titleId: Long = 0L,
     val title: String,
     val embedding: ByteArray, // 1024차원 벡터 저장 (TypeConverter 필요)
-    val timestamp: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -20,7 +20,7 @@ data class Title(
         other as Title
 
         if (titleId != other.titleId) return false
-        if (timestamp != other.timestamp) return false
+        if (createdAt != other.createdAt) return false
         if (title != other.title) return false
         if (!embedding.contentEquals(other.embedding)) return false
 
@@ -29,7 +29,7 @@ data class Title(
 
     override fun hashCode(): Int {
         var result = titleId.hashCode()
-        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + createdAt.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + embedding.contentHashCode()
         return result
@@ -54,14 +54,13 @@ data class Message(
     val parentTitleId: Long, // TitleEmbedding.titleId 참조
     val sender: String,
     val content: String,
-    val messageTimestamp: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "user_profile")
+@Entity(tableName = "profile")
 data class UserProfile(
-    @PrimaryKey
-    val userId: Int = 1, // 단일 항목을 위해 1로 고정
-    val systemPrompt: String,
-    val postsCount: Int,
-    val messagesUsed: Int
+    val prompt: String,
+    val recentSummarize: String,
+    val onBoard: String,
+    val insight: String
 )
