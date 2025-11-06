@@ -9,7 +9,7 @@ import androidx.room.Delete
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM user_profile")
+    @Query("SELECT * FROM profile")
     fun getAll(): UserProfile
 
 }
@@ -22,7 +22,7 @@ interface TitleDao {
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM messages WHERE ParentTitleId = :parentTitleId ORDER BY messageTimestamp")
+    @Query("SELECT * FROM messages WHERE ParentTitleId = :parentTitleId ORDER BY createAt")
     fun getAll(parentTitleId: Int): Message
 }
 
