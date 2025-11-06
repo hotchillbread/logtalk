@@ -18,7 +18,7 @@ retrofit = "3.0.0"              # Retrofit 최신 안정화 버전 (이전 3.0.0
 okhttp = "5.3.0"               # OkHttp 버전 별도 정의 (인터셉터용)
 
 # KSP 컴파일러
-ksp = "1.9.22-1.0.17"           # Kotlin 버전에 맞는 KSP 버전
+ksp = "2.2.21-2.0.4"         # Kotlin 버전에 맞는 KSP 버전
 
 # 테스트
 junit = "4.13.2"

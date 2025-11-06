@@ -22,7 +22,7 @@ interface TitleDao {
 
 @Dao
 interface MessageDao {
-    @Query("SELECT * FROM messages WHERE ParentTitleId = :parentTitleId ORDER BY createAt")
+    @Query("SELECT * FROM messages WHERE ParentTitleId = :parentTitleId ORDER BY createdAt")
     fun getAll(parentTitleId: Int): Message
 }
 
