@@ -60,6 +60,7 @@ dependencies {
     //코루틴 및 라이프사이클 (비동기 처리)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     // 로컬 데이터베이스 (Room)
     implementation(libs.androidx.room.runtime)
