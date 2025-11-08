@@ -59,6 +59,8 @@ data class Message(
 
 @Entity(tableName = "profile")
 data class UserProfile(
+    @PrimaryKey(autoGenerate = false)
+    val userName: String,
     val prompt: String,
     val recentSummarize: String,
     val onBoard: String,

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -23,7 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.example.logtalk.ui.theme.LogTalkTheme
+// com.example.logtalk.ui.theme.LogTalkTheme 임포트는 임시로 제거
+//할거 존1나 많네 안드로이드 도망갈래
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +77,17 @@ enum class AppDestinations(
     HOME("Home", Icons.Default.Home),
     FAVORITES("Favorites", Icons.Default.Favorite),
     PROFILE("Profile", Icons.Default.AccountBox),
+}
+
+@Composable
+fun LogTalkTheme(
+    content: @Composable () -> Unit
+) {
+    // 나중에 ui.theme 패키지에 제대로 된 Theme.kt 파일을 만드는 것이 좋습니다.
+    // 지금은 임시로 기본 MaterialTheme을 사용합니다.
+    MaterialTheme(
+        content = content
+    )
 }
 
 @Composable
