@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-// com.example.logtalk.ui.theme.LogTalkTheme 임포트는 임시로 제거
-//할거 존1나 많네 안드로이드 도망갈래
+//ui 라우팅용 패키지
+import com.example.logtalk.ui.login.LoginScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LogTalkTheme {
-                LogTalkApp()
+                LoginScreen()
             }
         }
     }
