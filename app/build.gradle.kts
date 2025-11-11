@@ -7,20 +7,12 @@ plugins {
 
 android {
     namespace = "com.example.logtalk"
-    compileSdk = 36
-
-    //종속성 충돌 해결
-    configurations.all {
-        resolutionStrategy {
-            // libs.versions.kotlin.get()을 사용하여 버전 카탈로그의 Kotlin 버전을 참조
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${libs.versions.kotlin.get()}")
-        }
-    }
+    compileSdk = 34 // 36은 아직 미지원 가능성이 높아 34로 안정화
 
     defaultConfig {
         applicationId = "com.example.logtalk"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -48,10 +40,6 @@ android {
         compose = true
         viewBinding = true
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
-    }
 }
 
 dependencies {
@@ -73,7 +61,6 @@ dependencies {
     //코루틴 및 라이프사이클 (비동기 처리)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // 로컬 데이터베이스 (Room)
