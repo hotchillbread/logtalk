@@ -1,5 +1,6 @@
 package com.example.logtalk.ui.navigation
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat // 예시 아이콘
@@ -10,11 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.example.logtalk.ui.navigation.MainScreenRoutes
 import com.example.logtalk.ui.chat.ChatScreen
+import com.example.logtalk.ui.theme.LoginColors
 
 // 임시 화면
 @Composable fun HomeScreen() { Text("홈 화면") }
@@ -36,7 +39,9 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                modifier = Modifier.height(48.dp)
+            ) {
                 val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
 
@@ -57,7 +62,11 @@ fun MainScreen() {
                                 // 상태 복원
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = LoginColors.TextPurple,
+                            unselectedIconColor = LoginColors.TextBlack,
+                        )
                     )
                 }
             }
@@ -68,6 +77,9 @@ fun MainScreen() {
             navController = mainNavController,
             startDestination = MainScreenRoutes.Home.route, //시작은 home부터 하도록 설정
             modifier = Modifier.padding(innerPadding)
+
+
+            
         ) {
             composable(MainScreenRoutes.Home.route) { HomeScreen() }
             composable(MainScreenRoutes.Chat.route) { ChatScreen() }
