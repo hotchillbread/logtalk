@@ -17,3 +17,4 @@ fun LogTalkTheme(content: @Composable () -> Unit) {
         content = content
     )
 }
+

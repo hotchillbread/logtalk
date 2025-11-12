@@ -1,4 +1,4 @@
-package com.example.LogTalk
+package com.example.logtalk
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

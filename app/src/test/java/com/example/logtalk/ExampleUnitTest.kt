@@ -1,4 +1,4 @@
-package com.example.LogTalk
+package com.example.logtalk
 
 import org.junit.Test
 

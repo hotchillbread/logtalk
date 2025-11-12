@@ -23,6 +23,6 @@ interface TitleDao {
 @Dao
 interface MessageDao {
     @Query("SELECT * FROM messages WHERE ParentTitleId = :parentTitleId ORDER BY createdAt")
-    fun getAll(parentTitleId: Int): Message
+    fun getAll(parentTitleId: Int): MessageData
 }
 

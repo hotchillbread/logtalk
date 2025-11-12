@@ -48,7 +48,7 @@ data class Title(
     ],
     indices = [Index(value = ["parentTitleId"])] // FK 컬럼에 인덱스 설정 권장
 )
-data class Message(
+data class MessageData(
     @PrimaryKey(autoGenerate = true)
     val messageId: Long = 0L,
     val parentTitleId: Long, // TitleEmbedding.titleId 참조
