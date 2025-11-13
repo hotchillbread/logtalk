@@ -1,5 +1,11 @@
 // sealed interface (Loading/Empty/Content/Error)
-package com.example.LogTalk.ui.home
+package com.example.logtalk.ui.home
 
-interface HomeUiState {
+import com.example.logtalk.ui.home.adapter.item.HomeItem
+
+sealed interface HomeUiState {
+    data object Loading : HomeUiState
+    data object Empty : HomeUiState
+    data class Content(val items: List<HomeItem>) : HomeUiState
+    data class Error(val message: String) : HomeUiState
 }

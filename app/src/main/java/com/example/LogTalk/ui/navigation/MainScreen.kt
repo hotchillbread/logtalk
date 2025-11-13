@@ -2,25 +2,17 @@ package com.example.logtalk.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat // 예시 아이콘
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings // 예시 아이콘
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
-import com.example.logtalk.ui.navigation.MainScreenRoutes
+import com.example.logtalk.ui.home.HomeScreen
 
-
-// 임시 화면
-@Composable fun HomeScreen() { Text("홈 화면") }
 @Composable fun ChatScreen() { Text("채팅 화면") }
 @Composable fun SettingsScreen() { Text("설정 화면") }
-
 
 @Composable
 fun MainScreen() {
@@ -48,13 +40,10 @@ fun MainScreen() {
                         selected = isSelected,
                         onClick = {
                             mainNavController.navigate(screen.route) {
-                                // 맨위 팝업 시키기
                                 popUpTo(mainNavController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
-                                // 같은 목적지 재실행 방지
                                 launchSingleTop = true
-                                // 상태 복원
                                 restoreState = true
                             }
                         }
@@ -63,10 +52,9 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        //화면 내부에 nav 호스팅
         NavHost(
             navController = mainNavController,
-            startDestination = MainScreenRoutes.Home.route, //시작은 home부터 하도록 설정
+            startDestination = MainScreenRoutes.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(MainScreenRoutes.Home.route) { HomeScreen() }
@@ -75,3 +63,4 @@ fun MainScreen() {
         }
     }
 }
+
