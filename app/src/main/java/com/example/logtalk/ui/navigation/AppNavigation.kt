@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.example.logtalk.ui.login.LoginScreen
-import com.example.logtalk.ui.navigation.MainScreen // 방금 만든 MainScreen 임포트
+import com.example.logtalk.MainScreen // 방금 만든 MainScreen 임포트
 
 @Composable
 fun AppNavigation() {
