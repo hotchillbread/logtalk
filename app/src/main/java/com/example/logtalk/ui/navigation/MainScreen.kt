@@ -37,7 +37,7 @@ import com.example.logtalk.ui.navigation.MainScreenRoutes
 import com.example.logtalk.ui.chat.ChatScreen
 import com.example.logtalk.ui.chat.Message
 import com.example.logtalk.ui.theme.LoginColors
-
+import com.example.logtalk.ui.home.HomeScreen
 // 임시 화면
 @Composable fun HomeScreen() { Text("홈 화면") }
 

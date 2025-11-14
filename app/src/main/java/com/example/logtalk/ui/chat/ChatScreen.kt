@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
 
 
@@ -34,8 +35,8 @@ fun LogTalkAppBar() {
             ) {
                 Text(
                     "LogTalk",
-                    fontSize = 18.sp,
-                    color = ChatColors.TextBlack,
+                    fontSize = 24.sp,
+                    color = ChatColors.BackgroundPuple,
                     textAlign = TextAlign.Center,
                     // 중앙 정렬을 위해 maxLines을 1로 제한하거나 Modifier.weight(1f)를 사용
                     modifier = Modifier.padding(end = 48.dp) // Actions 공간 확보를 위한 임시 패딩
@@ -43,11 +44,12 @@ fun LogTalkAppBar() {
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /*홈으로 보내야함 */}) {
+            IconButton(onClick = { homeScreen() }) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기",
-                    tint = ChatColors.TextBlack
+                    modifier = Modifier.size( 28.dp),
+                    tint = ChatColors.TextGray
                 )
             }
         },
@@ -56,12 +58,13 @@ fun LogTalkAppBar() {
                 Icon(
                     Icons.Filled.MoreVert,
                     contentDescription = "더 보기",
-                    tint = ChatColors.TextBlack
+                    modifier = Modifier.size( 28.dp),
+                    tint = ChatColors.TextGray
                 )
             }
         },
-        backgroundColor = ChatColors.BackgroundWhite, // Material 2 스타일
-        elevation = 0.dp // 그림자 제거
+        backgroundColor = ChatColors.BackgroundWhite,
+        elevation = 0.dp
     )
 }
 
@@ -84,15 +87,31 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
 // 메세지 버블
 @Composable
 fun MessageBubble(message: Message) {
+
+    val bubbleShape = if (message.isUser) {
+        RoundedCornerShape(
+            topStart = 12.dp,
+            topEnd = 12.dp,
+            bottomStart = 12.dp,
+            bottomEnd = 0.dp
+        )
+    } else {
+        RoundedCornerShape(
+            topStart = 12.dp,
+            topEnd = 12.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 12.dp
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
     ) {
-        // ★ Material 2 Card 사용 (elevation = 0.dp로 그림자 제거)
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = bubbleShape,
             backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
             elevation = 0.dp,
             modifier = Modifier.widthIn(max = 300.dp)
