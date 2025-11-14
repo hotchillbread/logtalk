@@ -73,8 +73,26 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
-            // 4단계: 삭제 관련 로직 (다음 단계에서 완성)
+            // 4단계: 삭제 관련 로직 추가
+
+            SettingsIntent.ShowDeleteDialog -> {
+                _uiState.update { it.copy(showDeleteDialog = true) }
+            }
+            SettingsIntent.DismissDialog -> {
+                _uiState.update { it.copy(showDeleteDialog = false) }
+            }
+            SettingsIntent.ConfirmDelete -> {
+                // UseCase 호출하여 모든 기록 삭제 실행
+                deleteAllRecordsUseCase() // !! UseCase가 실제로 실행됨 !!
+                _uiState.update {
+                    // 다이얼로그를 닫고, 필요하다면 초기 상태로 복구 로직 추가
+                    it.copy(showDeleteDialog = false)
+                }
+            }
+
+            // 삭제 관련 로직 (다음 단계에서 완성)
             else -> {}
         }
+
     }
 }
