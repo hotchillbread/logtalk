@@ -21,11 +21,11 @@ import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
-
+import com.example.logtalk.ui.home.HomeScreen
 
 // 상단 바 (Material 2 TopAppBar로 변경)
 @Composable
-fun LogTalkAppBar() {
+fun LogTalkAppBar(onBackClick: () -> Unit) {
     TopAppBar(
         title = {
             // Row를 사용해 title을 강제로 중앙 정렬
@@ -44,7 +44,7 @@ fun LogTalkAppBar() {
             }
         },
         navigationIcon = {
-            IconButton(onClick = { homeScreen() }) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기",
@@ -128,7 +128,12 @@ fun MessageBubble(message: Message) {
 
 
 @Composable
-fun MessageInput() {
+fun MessageInput(
+    currentText: String, // 현재 텍스트 값
+    onTextChange: (String) -> Unit, // 텍스트 변경 콜백
+    onSendClick: () -> Unit, // 전송 버튼 클릭 콜백
+    onMicClick: () -> Unit = {} // 마이크 버튼 클릭 콜백 (기본값 설정)
+) {
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     Row(
@@ -138,8 +143,8 @@ fun MessageInput() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
-            value = textState,
-            onValueChange = { newValue -> textState = newValue },
+            value = currentText,
+            onValueChange = onTextChange,
             label = {},
             placeholder = { Text(text = "메시지 전송하기" ) },
             modifier = Modifier.weight(1f)
@@ -156,7 +161,7 @@ fun MessageInput() {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        IconButton(onClick = { /* 마이크 액션 */ }) {
+        IconButton(onClick = onMicClick) {
             Icon(
                 Icons.Filled.Mic,
                 contentDescription = "마이크",
@@ -166,7 +171,7 @@ fun MessageInput() {
         }
 
         // 전송 아이콘 버튼
-        IconButton(onClick = { /* 전송 액션 */ }) {
+        IconButton(onClick = onSendClick, enabled = currentText.isNotBlank()) {
             Icon(
                 Icons.Filled.Send,
                 contentDescription = "전송",
@@ -187,17 +192,16 @@ data class Message(val text: String, val isUser: Boolean)
 @Composable
 fun ChatScreen(
     messages: List<Message>,
-    sendMessage: () -> Unit,
-    sendVoice: () -> Unit,
-    sendReport: () ->  Unit,
-    findSimilarChat: () -> Unit
+    sendMessage: (String) -> Unit,
+    onBackClick: () -> Unit,
+    //sendVoice, sendReport, findSimilarChat 등 추가
 ) {
     var textInput by remember { mutableStateOf("") }
 
 
     Scaffold(
         topBar = {
-            LogTalkAppBar()
+            LogTalkAppBar(onBackClick = onBackClick)
         },
     ) { paddingValues ->
         Column(
@@ -209,7 +213,14 @@ fun ChatScreen(
                 messages = messages,
                 modifier = Modifier.weight(1f)
             )
-            MessageInput()
+            MessageInput(currentText = textInput,
+                onTextChange = { textInput = it },
+                onSendClick = {
+                    if (textInput.isNotBlank()) {
+                        sendMessage(textInput)
+                        textInput = "" // 메시지 전송 후 입력 필드 초기화
+                    }
+                })
 
         }
 

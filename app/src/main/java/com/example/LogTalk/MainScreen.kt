@@ -131,10 +131,16 @@ fun MainScreen() {
             composable(MainScreenRoutes.Home.route) { HomeScreen() }
             composable(MainScreenRoutes.Chat.route) { ChatScreen(
                 messages = dummyMessages,
-                sendMessage = { /* TODO: 전송 로직 */ },
-                sendVoice = { /* TODO: 음성 로직 */ },
-                sendReport = { /* TODO: 신고 로직 */ },
-                findSimilarChat = { /* TODO: 유사 채팅 찾기 로직 */ }) }
+                sendMessage = {
+                    // 실제 메시지 전송 로직 구현 (ViewModel 호출 등)
+                    //messages.add(Message(text, true))
+                },
+                // 뒤로가기 액션
+                onBackClick = {
+                    mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
+                }
+            )
+            }
             composable(MainScreenRoutes.Settings.route) { SettingsScreen() }
         }
     }
