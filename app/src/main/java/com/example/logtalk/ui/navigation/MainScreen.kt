@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,13 +71,14 @@ fun MainScreen() {
             Column {
 
                 Divider(
-                    color = Color.LightGray,
-                    thickness = 1.dp
+                    color = Color.LightGray.copy(alpha=0.8f),
+                    thickness = 0.5.dp
                 )
 
                 NavigationBar(
                     containerColor = Color.White,
-                    modifier = Modifier.height(80.dp)
+                    modifier = Modifier.height(68.dp),
+                    windowInsets = WindowInsets(0, 0, 0, 0)
                 ) {
                     val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
@@ -98,19 +100,20 @@ fun MainScreen() {
                             icon = {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(top = 0.dp, bottom = 0.dp)
                                 ) {
                                     Icon(
                                         screen.icon,
                                         contentDescription = screen.label,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray
+                                        modifier = Modifier.size(26.dp),
+                                        tint = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha=0.8f)
                                     )
-                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Spacer(modifier = Modifier.height(0.dp))
                                     Text(
                                         text = screen.label,
-                                        fontSize = 12.sp,
-                                        color = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray
+                                        fontSize =14.sp,
+                                        color = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha=0.8f)
                                     )
                                 }
                             },

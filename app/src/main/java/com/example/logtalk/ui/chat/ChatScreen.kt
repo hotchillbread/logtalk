@@ -94,7 +94,7 @@ fun MessageBubble(message: Message) {
         Card(
             shape = RoundedCornerShape(12.dp),
             backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
-            elevation = 0.dp, // Material 2에서 그림자 제거
+            elevation = 0.dp,
             modifier = Modifier.widthIn(max = 300.dp)
         ) {
             Text(
@@ -141,7 +141,7 @@ fun MessageInput() {
             Icon(
                 Icons.Filled.Mic,
                 contentDescription = "마이크",
-                tint = Color.Gray,
+                tint = ChatColors.BackgroundPuple,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -151,7 +151,7 @@ fun MessageInput() {
             Icon(
                 Icons.Filled.Send,
                 contentDescription = "전송",
-                tint = Color.Gray
+                tint = ChatColors.BackgroundPuple,
             )
         }
     }
