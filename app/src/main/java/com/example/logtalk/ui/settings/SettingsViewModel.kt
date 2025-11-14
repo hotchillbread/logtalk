@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// ⚠️ Domain 레이어의 UseCase는 프로젝트에 맞게 정의하고 Hilt 모듈에 바인딩해야 합니다.
+//  Domain 레이어의 UseCase는 프로젝트에 맞게 정의하고 Hilt 모듈에 바인딩해야 함
 // 임시 인터페이스 정의 (실제 코드는 Domain Layer에 있어야 함)
 interface SavePersonaUseCase { suspend operator fun invoke(persona: PersonaData) }
 interface LoadPersonaUseCase { suspend operator fun invoke(): PersonaData }
@@ -48,7 +48,7 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun handleIntent(intent: SettingsIntent) {
         when (intent) {
-            // 💡 편집 모드 진입 및 취소
+            // 편집 모드 진입 및 취소
             SettingsIntent.ClickEditPersona -> {
                 _uiState.update {
                     it.copy(isEditingPersona = true, currentEditingPersona = it.persona) // 원본을 임시 상태로 복사
@@ -59,13 +59,13 @@ class SettingsViewModel @Inject constructor(
                     it.copy(isEditingPersona = false, currentEditingPersona = it.persona) // 원본으로 복구
                 }
             }
-            // 💡 텍스트 입력 시 임시 상태 업데이트
+            // 텍스트 입력 시 임시 상태 업데이트
             is SettingsIntent.UpdateEditingDescription -> {
                 _uiState.update {
                     it.copy(currentEditingPersona = it.currentEditingPersona.copy(description = intent.newDescription))
                 }
             }
-            // 💡 데이터 저장
+            // 데이터 저장
             is SettingsIntent.SavePersona -> {
                 savePersonaUseCase(intent.persona)
                 _uiState.update {
@@ -73,7 +73,7 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
-            // 💡 4단계: 삭제 관련 로직 (다음 단계에서 완성)
+            // 4단계: 삭제 관련 로직 (다음 단계에서 완성)
             else -> {}
         }
     }
