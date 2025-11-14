@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추�
 // 상단 바 (Material 2 TopAppBar로 변경)
 @Composable
 fun LogTalkAppBar() {
-    // ★ Material 2 TopAppBar 사용 (안정화됨)
     TopAppBar(
         title = {
             // Row를 사용해 title을 강제로 중앙 정렬
@@ -110,7 +109,7 @@ fun MessageBubble(message: Message) {
 
 
 @Composable
-fun MessageInputField() {
+fun MessageInput() {
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     Row(
@@ -121,7 +120,7 @@ fun MessageInputField() {
     ) {
         OutlinedTextField(
             value = textState,
-            onValueChange = { textState },
+            onValueChange = { newValue -> textState = newValue },
             label = {},
             placeholder = { Text(text = "메시지 전송하기" ) },
             modifier = Modifier.weight(1f)
@@ -161,18 +160,26 @@ fun MessageInputField() {
 //임시 데이터 나중에 state에서 관리하는걸로 변경
 data class Message(val text: String, val isUser: Boolean)
 
-@Composable
-fun ChatScreen1() {
-    val messages = remember {
-        mutableStateListOf(
-            Message("오늘의 기분은 어떠신가요?\n저에게 알려주세요", isUser = false),
-            Message("흑흑 안드로이드 스튜디오만 돌리면\n컴퓨터가 죽으려고 해 ㅠㅠ", isUser = true)
-        )
-    }
 
-    // ★ Material 2 Scaffold 사용
+// 전송, 마이크 interaction 추가필요
+// 상단 케밥버튼 인터페이스 추가
+// 뒤로가기 누르면 homeScreen()이동 해야함 <- 다른 사람이 하면 추가
+// 봇 메세지 누르면 신고하기 나오게 하기(화면만)
+@Composable
+fun ChatScreen(
+    messages: List<Message>,
+    sendMessage: () -> Unit,
+    sendVoice: () -> Unit,
+    sendReport: () ->  Unit,
+    findSimilarChat: () -> Unit
+) {
+    var textInput by remember { mutableStateOf("") }
+
+
     Scaffold(
-        topBar = { LogTalkAppBar() },
+        topBar = {
+            LogTalkAppBar()
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -183,15 +190,9 @@ fun ChatScreen1() {
                 messages = messages,
                 modifier = Modifier.weight(1f)
             )
-            MessageInputField()
+            MessageInput()
+
         }
+
     }
-}
-
-// 전송, 마이크 interaction 추가필요
-// 상단 케밥버튼 인터페이스 추가
-// 뒤로가기 누르면 homeScreen()이동 해야함 <- 다른 사람이 하면 추가
-// 봇 메세지 누르면 신고하기 나오게 하기(화면만)
-fun ChatScreen() {
-
 }
