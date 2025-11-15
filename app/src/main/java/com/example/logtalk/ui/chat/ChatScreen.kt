@@ -19,12 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
-
+import com.example.logtalk.ui.home.HomeScreen
 
 // 상단 바 (Material 2 TopAppBar로 변경)
 @Composable
-fun LogTalkAppBar() {
+fun LogTalkAppBar(onBackClick: () -> Unit) {
     TopAppBar(
         title = {
             // Row를 사용해 title을 강제로 중앙 정렬
@@ -34,8 +35,8 @@ fun LogTalkAppBar() {
             ) {
                 Text(
                     "LogTalk",
-                    fontSize = 18.sp,
-                    color = ChatColors.TextBlack,
+                    fontSize = 24.sp,
+                    color = ChatColors.BackgroundPuple,
                     textAlign = TextAlign.Center,
                     // 중앙 정렬을 위해 maxLines을 1로 제한하거나 Modifier.weight(1f)를 사용
                     modifier = Modifier.padding(end = 48.dp) // Actions 공간 확보를 위한 임시 패딩
@@ -43,11 +44,12 @@ fun LogTalkAppBar() {
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /*홈으로 보내야함 */}) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기",
-                    tint = ChatColors.TextBlack
+                    modifier = Modifier.size( 28.dp),
+                    tint = ChatColors.TextGray
                 )
             }
         },
@@ -56,12 +58,13 @@ fun LogTalkAppBar() {
                 Icon(
                     Icons.Filled.MoreVert,
                     contentDescription = "더 보기",
-                    tint = ChatColors.TextBlack
+                    modifier = Modifier.size( 28.dp),
+                    tint = ChatColors.TextGray
                 )
             }
         },
-        backgroundColor = ChatColors.BackgroundWhite, // Material 2 스타일
-        elevation = 0.dp // 그림자 제거
+        backgroundColor = ChatColors.BackgroundWhite,
+        elevation = 0.dp
     )
 }
 
@@ -84,15 +87,31 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
 // 메세지 버블
 @Composable
 fun MessageBubble(message: Message) {
+
+    val bubbleShape = if (message.isUser) {
+        RoundedCornerShape(
+            topStart = 12.dp,
+            topEnd = 12.dp,
+            bottomStart = 12.dp,
+            bottomEnd = 0.dp
+        )
+    } else {
+        RoundedCornerShape(
+            topStart = 12.dp,
+            topEnd = 12.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 12.dp
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
     ) {
-        // ★ Material 2 Card 사용 (elevation = 0.dp로 그림자 제거)
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = bubbleShape,
             backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
             elevation = 0.dp,
             modifier = Modifier.widthIn(max = 300.dp)
@@ -109,7 +128,12 @@ fun MessageBubble(message: Message) {
 
 
 @Composable
-fun MessageInput() {
+fun MessageInput(
+    currentText: String, // 현재 텍스트 값
+    onTextChange: (String) -> Unit, // 텍스트 변경 콜백
+    onSendClick: () -> Unit, // 전송 버튼 클릭 콜백
+    onMicClick: () -> Unit = {} // 마이크 버튼 클릭 콜백 (기본값 설정)
+) {
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     Row(
@@ -119,8 +143,8 @@ fun MessageInput() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
-            value = textState,
-            onValueChange = { newValue -> textState = newValue },
+            value = currentText,
+            onValueChange = onTextChange,
             label = {},
             placeholder = { Text(text = "메시지 전송하기" ) },
             modifier = Modifier.weight(1f)
@@ -137,7 +161,7 @@ fun MessageInput() {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        IconButton(onClick = { /* 마이크 액션 */ }) {
+        IconButton(onClick = onMicClick) {
             Icon(
                 Icons.Filled.Mic,
                 contentDescription = "마이크",
@@ -147,7 +171,7 @@ fun MessageInput() {
         }
 
         // 전송 아이콘 버튼
-        IconButton(onClick = { /* 전송 액션 */ }) {
+        IconButton(onClick = onSendClick, enabled = currentText.isNotBlank()) {
             Icon(
                 Icons.Filled.Send,
                 contentDescription = "전송",
@@ -168,17 +192,16 @@ data class Message(val text: String, val isUser: Boolean)
 @Composable
 fun ChatScreen(
     messages: List<Message>,
-    sendMessage: () -> Unit,
-    sendVoice: () -> Unit,
-    sendReport: () ->  Unit,
-    findSimilarChat: () -> Unit
+    sendMessage: (String) -> Unit,
+    onBackClick: () -> Unit,
+    //sendVoice, sendReport, findSimilarChat 등 추가
 ) {
     var textInput by remember { mutableStateOf("") }
 
 
     Scaffold(
         topBar = {
-            LogTalkAppBar()
+            LogTalkAppBar(onBackClick = onBackClick)
         },
     ) { paddingValues ->
         Column(
@@ -190,7 +213,14 @@ fun ChatScreen(
                 messages = messages,
                 modifier = Modifier.weight(1f)
             )
-            MessageInput()
+            MessageInput(currentText = textInput,
+                onTextChange = { textInput = it },
+                onSendClick = {
+                    if (textInput.isNotBlank()) {
+                        sendMessage(textInput)
+                        textInput = "" // 메시지 전송 후 입력 필드 초기화
+                    }
+                })
 
         }
 

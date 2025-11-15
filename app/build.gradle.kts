@@ -82,7 +82,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Compose Navigation에서 hiltViewModel() 사용을 위한 필수 의존성
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 }

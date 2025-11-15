@@ -1,31 +1,22 @@
-package com.example.logtalk.ui.navigation
+package com.example.logtalk
+
 
 import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat // 예시 아이콘
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings // 예시 아이콘
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,9 +29,7 @@ import com.example.logtalk.ui.chat.ChatScreen
 import com.example.logtalk.ui.chat.Message
 import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
-
-// 임시 화면
-@Composable fun HomeScreen() { Text("홈 화면") }
+import com.example.logtalk.ui.home.HomeScreen
 
 @Composable
 fun MainScreen() {
@@ -140,10 +129,16 @@ fun MainScreen() {
             composable(MainScreenRoutes.Home.route) { HomeScreen() }
             composable(MainScreenRoutes.Chat.route) { ChatScreen(
                 messages = dummyMessages,
-                sendMessage = { /* TODO: 전송 로직 */ },
-                sendVoice = { /* TODO: 음성 로직 */ },
-                sendReport = { /* TODO: 신고 로직 */ },
-                findSimilarChat = { /* TODO: 유사 채팅 찾기 로직 */ }) }
+                sendMessage = {
+                    // 실제 메시지 전송 로직 구현 (ViewModel 호출 등)
+                    //messages.add(Message(text, true))
+                },
+                // 뒤로가기 액션
+                onBackClick = {
+                    mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
+                }
+            )
+            }
             composable(MainScreenRoutes.Settings.route) { SettingsScreen() }
         }
     }
