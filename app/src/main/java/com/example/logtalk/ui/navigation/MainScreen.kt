@@ -36,13 +36,11 @@ import androidx.navigation.compose.*
 import com.example.logtalk.ui.navigation.MainScreenRoutes
 import com.example.logtalk.ui.chat.ChatScreen
 import com.example.logtalk.ui.chat.Message
+import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
 
 // 임시 화면
 @Composable fun HomeScreen() { Text("홈 화면") }
-
-@Composable fun SettingsScreen() { Text("설정 화면") }
-
 
 @Composable
 fun MainScreen() {

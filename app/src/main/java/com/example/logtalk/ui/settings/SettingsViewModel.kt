@@ -13,7 +13,7 @@ import javax.inject.Inject
 // 임시 인터페이스 정의 (실제 코드는 Domain Layer에 있어야 함)
 interface SavePersonaUseCase { suspend operator fun invoke(persona: PersonaData) }
 interface LoadPersonaUseCase { suspend operator fun invoke(): PersonaData }
-interface DeleteAllRecordsUseCase { suspend operator fun invoke() }
+interface DeleteAllRecordsUseCase { suspend operator fun invoke(unit: Unit = Unit) }
 
 
 @HiltViewModel
@@ -83,7 +83,7 @@ class SettingsViewModel @Inject constructor(
             }
             SettingsIntent.ConfirmDelete -> {
                 // UseCase 호출하여 모든 기록 삭제 실행
-                deleteAllRecordsUseCase() // !! UseCase가 실제로 실행됨 !!
+                deleteAllRecordsUseCase(Unit) // !! UseCase가 실제로 실행됨 !!
                 _uiState.update {
                     // 다이얼로그를 닫고, 필요하다면 초기 상태로 복구 로직 추가
                     it.copy(showDeleteDialog = false)
