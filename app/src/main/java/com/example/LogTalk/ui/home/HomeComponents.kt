@@ -13,9 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,15 +23,17 @@ import com.example.logtalk.R
 
 @Composable
 fun HomeHeader() {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .height(60.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        // 로고
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // 로고 (중앙)
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = "Log",
                 fontSize = 24.sp,
@@ -45,12 +44,15 @@ fun HomeHeader() {
                 text = "Talk",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF6366F1)
+                color = Color(0xFF6282E1)
             )
         }
 
-        // 아이콘 버튼들
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        // 아이콘 버튼들 (오른쪽)
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             IconButton(onClick = { /* TODO: 노트 */ }) {
                 Icon(
                     imageVector = Icons.Default.Description,
@@ -71,45 +73,52 @@ fun HomeHeader() {
 
 @Composable
 fun NewChatBanner(onClick: () -> Unit) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(2.dp, Color(0xFF6282E1))
+            .padding(vertical = 17.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .width(350.dp)
+                .height(81.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            border = BorderStroke(2.dp, Color(0xFF6282E1))
         ) {
-            // ChatGPT 아이콘 (Linear Gradient: #6282E1 → #FEC3FF)
-            // 배경 투명, 아이콘 선만 그라데이션
-            ChatGPTIconWithGradient(
-                modifier = Modifier.size(32.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // 텍스트
-            Column {
-                Text(
-                    text = "상담을 시작해볼까요?",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF6282E1),
-                    letterSpacing = 0.sp
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onClick)
+                    .padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // ChatGPT 아이콘 (Linear Gradient: #6282E1 → #FEC3FF)
+                // 배경 투명, 아이콘 선만 그라데이션
+                ChatGPTIconWithGradient(
+                    modifier = Modifier.size(32.dp)
                 )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "› 눌러서 새로운 대화 시작하기",
-                    fontSize = 13.sp,
-                    color = Color(0xFFB8B8B8),
-                    letterSpacing = 0.sp
-                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // 텍스트
+                Column {
+                    Text(
+                        text = "상담을 시작해볼까요?",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF6282E1),
+                        letterSpacing = 0.sp
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "› 눌러서 새로운 대화 시작하기",
+                        fontSize = 13.sp,
+                        color = Color(0xFFB8B8B8),
+                        letterSpacing = 0.sp
+                    )
+                }
             }
         }
     }
@@ -117,136 +126,147 @@ fun NewChatBanner(onClick: () -> Unit) {
 
 @Composable
 fun ChatGPTIconWithGradient(modifier: Modifier = Modifier) {
-    // 투명 배경 PNG 아이콘의 선(알파 영역)에만 Linear Gradient 적용
+    // Vector Drawable (XML)에 이미 Linear Gradient가 포함되어 있음
     // #6282E1 (0%) → #FEC3FF (100%)
     Image(
         painter = painterResource(id = R.drawable.ic_chatgpt),
         contentDescription = "ChatGPT",
         modifier = modifier
-            .drawWithContent {
-                drawContent()
-                // 아이콘의 알파가 있는 부분(선)에만 그라데이션 색상 적용
-                drawRect(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF6282E1),  // 0% - 파란색
-                            Color(0xFFFEC3FF)   // 100% - 핑크색
-                        ),
-                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                        end = androidx.compose.ui.geometry.Offset(size.width, size.height)
-                    ),
-                    blendMode = BlendMode.SrcAtop  // 원본 알파 채널을 유지하면서 색상만 적용
-                )
-            }
     )
 }
 
 @Composable
 fun SearchBar() {
-    OutlinedTextField(
-        value = "",
-        onValueChange = { /* TODO: 검색 */ },
+    var searchText by remember { mutableStateOf("") }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        placeholder = {
-            Text(
-                text = "상담 기록 검색...",
-                color = Color.Gray
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "검색",
-                tint = Color.Gray
-            )
-        },
-        shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF6366F1),
-            unfocusedBorderColor = Color(0xFFE0E0E0)
-        ),
-        singleLine = true
-    )
-}
-
-@Composable
-fun SessionList(sessions: List<SessionData>) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 80.dp)
+            .padding(vertical = 17.dp),
+        contentAlignment = Alignment.Center
     ) {
-        items(sessions.size) { index ->
-            SessionCard(session = sessions[index])
-            if (index < sessions.size - 1) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 72.dp),
-                    color = Color(0xFFF0F0F0)
+        Surface(
+            modifier = Modifier
+                .width(345.dp)
+                .height(36.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = Color.White,
+            border = BorderStroke(1.dp, Color(0xFFE0E0E0))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 검색 아이콘
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "검색",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(16.dp)
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // 검색 입력 필드
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (searchText.isEmpty()) {
+                        Text(
+                            text = "상담 기록 검색...",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                    }
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        ),
+                        singleLine = true,
+                        decorationBox = { innerTextField ->
+                            innerTextField()
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun SessionCard(session: SessionData) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* TODO: 세션 열기 */ }
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+fun SessionList(sessions: List<SessionData>) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 80.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // 아이콘
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ChatBubbleOutline,
-                contentDescription = null,
-                tint = Color(0xFF6366F1),
-                modifier = Modifier.size(24.dp)
-            )
+        items(sessions.size) { index ->
+            SessionCard(session = sessions[index])
         }
+    }
+}
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // 텍스트 내용
-        Column(
+@Composable
+fun SessionCard(session: SessionData) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
             modifier = Modifier
-                .weight(1f)
-                .align(Alignment.Top)
+                .width(352.dp)
+                .height(78.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            border = BorderStroke(1.dp, Color(0xFFF0F0F0))
         ) {
-            Text(
-                text = session.title,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = session.lastMessage,
-                fontSize = 13.sp,
-                color = Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { /* TODO: 세션 열기 */ }
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 텍스트 내용
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = session.title,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = session.lastMessage,
+                        fontSize = 13.sp,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // 시간
+                Text(
+                    text = session.timeAgo,
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // 시간
-        Text(
-            text = session.timeAgo,
-            fontSize = 12.sp,
-            color = Color.Gray,
-            modifier = Modifier.align(Alignment.Top)
-        )
     }
 }
 

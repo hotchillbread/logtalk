@@ -30,11 +30,26 @@ fun HomeScreen() {
         // 헤더
         HomeHeader()
 
+        androidx.compose.material3.HorizontalDivider(
+            color = Color(0xFFF0F0F0),
+            thickness = 1.dp
+        )
+
         // 상담 시작 배너
         NewChatBanner(onClick = { /* TODO: 새 상담 시작 */ })
 
+        androidx.compose.material3.HorizontalDivider(
+            color = Color(0xFFF0F0F0),
+            thickness = 1.dp
+        )
+
         // 검색 바
         SearchBar()
+
+        androidx.compose.material3.HorizontalDivider(
+            color = Color(0xFFF0F0F0),
+            thickness = 1.dp
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
