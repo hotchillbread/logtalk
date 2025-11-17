@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Text
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
 import com.example.logtalk.ui.home.HomeScreen
 
@@ -42,27 +44,24 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
+        CenterAlignedTopAppBar(
         title = {
             Row(
-                Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "LogTalk",
+                    text = "Log",
                     fontSize = 24.sp,
-                    color = ChatColors.BackgroundPuple,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(end = 48.dp)
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "뒤로 가기",
-                    modifier = Modifier.size( 28.dp),
-                    tint = ChatColors.TextGray
+                Text(
+                    text = "Talk",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6282E1)
                 )
             }
         },
@@ -131,6 +130,7 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
         },
         backgroundColor = ChatColors.BackgroundWhite,
         elevation = 0.dp
+    )
     )
 }
 
