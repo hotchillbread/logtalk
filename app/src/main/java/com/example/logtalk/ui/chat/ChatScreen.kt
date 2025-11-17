@@ -44,7 +44,6 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
-        CenterAlignedTopAppBar(
         title = {
             Row(
                 modifier = Modifier
@@ -62,6 +61,16 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF6282E1)
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "뒤로 가기",
+                    modifier = Modifier.size( 28.dp),
+                    tint = ChatColors.TextGray
                 )
             }
         },
@@ -90,7 +99,7 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "비슷한 상담 찾기",
-                                tint = ChatColors.TextBlack
+                                tint = ChatColors.TextGray
                             )
                             Spacer(Modifier.width(8.dp))
                             Text("비슷한 상담 찾기")
@@ -104,7 +113,7 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
                             Icon(
                                 imageVector = Icons.Default.Flag,
                                 contentDescription = "신고",
-                                tint = ChatColors.TextBlack
+                                tint = ChatColors.TextGray
                             )
                             Spacer(Modifier.width(8.dp))
                             Text("신고")
@@ -130,7 +139,6 @@ fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
         },
         backgroundColor = ChatColors.BackgroundWhite,
         elevation = 0.dp
-    )
     )
 }
 
