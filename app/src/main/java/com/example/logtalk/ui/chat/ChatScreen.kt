@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons // Material 2/3 공통
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 // import androidx.compose.material3.* // Material 3 임포트 제거
@@ -19,16 +21,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
 import com.example.logtalk.ui.home.HomeScreen
 
-// 상단 바 (Material 2 TopAppBar로 변경)
 @Composable
-fun LogTalkAppBar(onBackClick: () -> Unit) {
+fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
+                  onFindSimilarClick: () -> Unit, // 비슷한 상담 찾기
+                  onReportClick: () -> Unit,      // 신고
+                  onDeleteChatClick: () -> Unit   // 채팅 삭제
+) {
+    var expanded by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
-            // Row를 사용해 title을 강제로 중앙 정렬
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -38,8 +45,7 @@ fun LogTalkAppBar(onBackClick: () -> Unit) {
                     fontSize = 24.sp,
                     color = ChatColors.BackgroundPuple,
                     textAlign = TextAlign.Center,
-                    // 중앙 정렬을 위해 maxLines을 1로 제한하거나 Modifier.weight(1f)를 사용
-                    modifier = Modifier.padding(end = 48.dp) // Actions 공간 확보를 위한 임시 패딩
+                    modifier = Modifier.padding(end = 48.dp)
                 )
             }
         },
@@ -54,13 +60,66 @@ fun LogTalkAppBar(onBackClick: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = { /* 메뉴 액션 */ }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    contentDescription = "더 보기",
-                    modifier = Modifier.size( 28.dp),
-                    tint = ChatColors.TextGray
-                )
+            Box(
+                modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+            ) {
+                IconButton(onClick = { expanded = true }) { //클릭시 true로 변경
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        contentDescription = "더 보기",
+                        modifier = Modifier.size(28.dp),
+                        tint = ChatColors.TextBlack
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onFindSimilarClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "비슷한 상담 찾기",
+                                tint = ChatColors.TextBlack
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("비슷한 상담 찾기")
+                        }
+                    }
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onReportClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Flag,
+                                contentDescription = "신고",
+                                tint = ChatColors.TextBlack
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("신고")
+                        }
+                    }
+
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onDeleteChatClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "대화 삭제",
+                                tint = ChatColors.TextRed
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("대화 삭제", color = ChatColors.TextRed)
+                        }
+                    }
+                }
             }
         },
         backgroundColor = ChatColors.BackgroundWhite,
@@ -74,8 +133,8 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
         reverseLayout = false
     ) {
         items(messages) { message ->
@@ -96,20 +155,30 @@ fun MessageBubble(message: Message) {
             bottomEnd = 0.dp
         )
     } else {
-        RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp,
-            bottomStart = 0.dp,
-            bottomEnd = 12.dp
-        )
+        if (message.relatedConsultation != null) {
+            RoundedCornerShape(
+                topStart = 12.dp,
+                topEnd = 12.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp
+            )
+        } else {
+            RoundedCornerShape(
+                topStart = 12.dp,
+                topEnd = 12.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 12.dp
+            )
+        }
     }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = if (message.isUser) Alignment.End else Alignment.Start
     ) {
+        //채팅 버블 (Card)
         Card(
             shape = bubbleShape,
             backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
@@ -123,9 +192,53 @@ fun MessageBubble(message: Message) {
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             )
         }
+        // 리다이렉션이 있는 경우
+        if (!message.isUser && message.relatedConsultation != null) {
+            RelatedConsultationBlock(message)
+        }
     }
 }
 
+@Composable
+fun RelatedConsultationBlock(message: Message) {
+    val blockShape = RoundedCornerShape(
+        topStart = 0.dp,
+        topEnd = 0.dp,
+        bottomStart = 8.dp,
+        bottomEnd = 8.dp
+    )
+
+    Card(
+        shape = blockShape,
+        backgroundColor = ChatColors.BackgroundGray,
+        elevation = 0.dp,
+        modifier = Modifier
+            .widthIn(max = 300.dp)
+            .padding(top = 0.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            if (message.relatedDate != null && message.directQuestion != null) {
+                Divider(color = ChatColors.TextGray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                Text(
+                    text = "${message.relatedDate}",
+                    color = ChatColors.TextGray, // 날짜 색상
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Text(
+                    text = message.directQuestion,
+                    color = ChatColors.BackgroundPuple,
+                    fontSize = 15.sp,
+                    // 사용자 정의 클릭 로직
+                    //`ChatScreen`에서 `onQuestionClick: (String) -> Unit` 콜백설정하셈!
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                    // .clickable { onQuestionClick(message.directQuestion) } // 클릭 리스너 추가해야함 ㅠ
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun MessageInput(
@@ -181,8 +294,17 @@ fun MessageInput(
     }
 }
 
-//임시 데이터 나중에 state에서 관리하는걸로 변경
-data class Message(val text: String, val isUser: Boolean)
+//임시데이터
+data class Message(
+    val text: String,
+    val isUser: Boolean,
+    // 하단에 표시할 '관련 상담 내용' 필드
+    val relatedConsultation: String? = null,
+    // 관련 상담이 있을 경우의 날짜
+    val relatedDate: String? = null,
+    // 관련 상담 아래에 표시할 다이렉트 질문
+    val directQuestion: String? = null
+)
 
 
 // 전송, 마이크 interaction 추가필요
@@ -194,14 +316,21 @@ fun ChatScreen(
     messages: List<Message>,
     sendMessage: (String) -> Unit,
     onBackClick: () -> Unit,
+    onFindSimilarClick: () -> Unit,
+    onReportClick: () -> Unit,
+    onDeleteChatClick: () -> Unit,
     //sendVoice, sendReport, findSimilarChat 등 추가
 ) {
     var textInput by remember { mutableStateOf("") }
 
-
     Scaffold(
         topBar = {
-            LogTalkAppBar(onBackClick = onBackClick)
+            LogTalkAppBar(onBackClick = onBackClick,
+                onFindSimilarClick = onFindSimilarClick,
+                onReportClick = onReportClick,
+                onDeleteChatClick = onDeleteChatClick
+            )
+
         },
     ) { paddingValues ->
         Column(
@@ -209,6 +338,7 @@ fun ChatScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            Divider()
             ChatContent(
                 messages = messages,
                 modifier = Modifier.weight(1f)
@@ -221,8 +351,6 @@ fun ChatScreen(
                         textInput = "" // 메시지 전송 후 입력 필드 초기화
                     }
                 })
-
         }
-
     }
 }

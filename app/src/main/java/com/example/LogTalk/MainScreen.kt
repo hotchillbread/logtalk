@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -136,7 +137,10 @@ fun MainScreen() {
                 // 뒤로가기 액션
                 onBackClick = {
                     mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
-                }
+                },
+                onFindSimilarClick = { /* TODO: 비슷한 상담 찾기 로직 */ },
+                onReportClick = { /* TODO: 신고 로직 */ },
+                onDeleteChatClick = { /* TODO: 대화 삭제 로직 */ }
             )
             }
             composable(MainScreenRoutes.Settings.route) {
@@ -153,7 +157,13 @@ fun MainScreen() {
 // 테스트용 더미 데이터
 val dummyMessages: List<Message> = listOf(
     Message("안녕하세요! 로그톡 봇입니다.", isUser = false),
-    Message("반갑습니다. 저는 사용자입니다.", isUser = true),
-    Message("오늘 날씨는 어떤가요?", isUser = true),
-    Message("오늘은 맑고 화창합니다.", isUser = false)
+    Message("안녕하세요!", true),
+    Message(
+        "사용자님, 고민에 대해 다시 생각해볼 시간을 드릴게요.",
+        false,
+        relatedConsultation = "해당 상담내역이 현재 상담과 비슷한 상담을 하고있어요.",
+        relatedDate = "2025.11.02",
+        directQuestion = "너 생각에는 내가 재수강을 하는게 좋을까?"
+    ),
+    Message("고민이 많으시군요.", false)
 )
