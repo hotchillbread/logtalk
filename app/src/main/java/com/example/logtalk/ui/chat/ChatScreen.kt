@@ -22,7 +22,11 @@ import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
 import com.example.logtalk.ui.home.HomeScreen
 
@@ -199,6 +203,7 @@ fun MessageBubble(message: Message) {
     }
 }
 
+//관련상담 검색시 컴포서블
 @Composable
 fun RelatedConsultationBlock(message: Message) {
     val blockShape = RoundedCornerShape(
@@ -248,6 +253,13 @@ fun MessageInput(
     onMicClick: () -> Unit = {} // 마이크 버튼 클릭 콜백 (기본값 설정)
 ) {
     var textState by remember { mutableStateOf(TextFieldValue("")) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // 화면이 구성되면 자동으로 포커스 + 키보드 열기
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Row(
         modifier = Modifier
@@ -258,10 +270,11 @@ fun MessageInput(
         OutlinedTextField(
             value = currentText,
             onValueChange = onTextChange,
-            label = {},
+            textStyle = TextStyle(fontSize = 16.sp),
             placeholder = { Text(text = "메시지 전송하기" ) },
             modifier = Modifier.weight(1f)
-                .height(48.dp),
+                .height(52.dp)
+                .focusRequester(focusRequester),
             shape = RoundedCornerShape(24.dp),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 backgroundColor = ChatColors.BackgroundInput,
@@ -279,7 +292,7 @@ fun MessageInput(
                 Icons.Filled.Mic,
                 contentDescription = "마이크",
                 tint = ChatColors.BackgroundPuple,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
 
@@ -289,6 +302,7 @@ fun MessageInput(
                 Icons.Filled.Send,
                 contentDescription = "전송",
                 tint = ChatColors.BackgroundPuple,
+                modifier = Modifier.size(32.dp)
             )
         }
     }
@@ -337,6 +351,7 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .imePadding()
         ) {
             Divider()
             ChatContent(

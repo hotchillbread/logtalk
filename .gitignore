@@ -26,3 +26,6 @@ google-services.json # Firebase/Google Services 설정
 # 빌드 최종 파일
 *.apk
 *.aab
+
+#OS 문제
+gradle.properties
