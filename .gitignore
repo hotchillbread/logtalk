@@ -14,6 +14,7 @@ keys.properties
 *.jks
 *.keystore
 google-services.json # Firebase/Google Services 설정
+/app/google-services.json
 
 # 빌드 및 임시 파일
 /build
