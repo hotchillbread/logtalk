@@ -14,9 +14,11 @@ object EnvManager {
     fun initialize() {
         //debug시 5분마다, 앱 배포시 1시간마다 env 받기
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 300 else 3600
+            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
+
+        fetchAndActivate()
     }
 
     private fun fetchAndActivate() {
