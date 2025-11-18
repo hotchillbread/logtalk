@@ -1,12 +1,16 @@
 package com.example.logtalk.ui.chat
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons // Material 2/3 공통
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 // import androidx.compose.material3.* // Material 3 임포트 제거
@@ -19,27 +23,44 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Text
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
 import com.example.logtalk.ui.home.HomeScreen
 
-// 상단 바 (Material 2 TopAppBar로 변경)
 @Composable
-fun LogTalkAppBar(onBackClick: () -> Unit) {
+fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
+                  onFindSimilarClick: () -> Unit, // 비슷한 상담 찾기
+                  onReportClick: () -> Unit,      // 신고
+                  onDeleteChatClick: () -> Unit   // 채팅 삭제
+) {
+    var expanded by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
-            // Row를 사용해 title을 강제로 중앙 정렬
             Row(
-                Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "LogTalk",
+                    text = "Log",
                     fontSize = 24.sp,
-                    color = ChatColors.BackgroundPuple,
-                    textAlign = TextAlign.Center,
-                    // 중앙 정렬을 위해 maxLines을 1로 제한하거나 Modifier.weight(1f)를 사용
-                    modifier = Modifier.padding(end = 48.dp) // Actions 공간 확보를 위한 임시 패딩
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Text(
+                    text = "Talk",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6282E1)
                 )
             }
         },
@@ -54,13 +75,66 @@ fun LogTalkAppBar(onBackClick: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = { /* 메뉴 액션 */ }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    contentDescription = "더 보기",
-                    modifier = Modifier.size( 28.dp),
-                    tint = ChatColors.TextGray
-                )
+            Box(
+                modifier = Modifier.wrapContentSize(Alignment.TopEnd)
+            ) {
+                IconButton(onClick = { expanded = true }) { //클릭시 true로 변경
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        contentDescription = "더 보기",
+                        modifier = Modifier.size(28.dp),
+                        tint = ChatColors.TextBlack
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onFindSimilarClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "비슷한 상담 찾기",
+                                tint = ChatColors.TextGray
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("비슷한 상담 찾기")
+                        }
+                    }
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onReportClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Flag,
+                                contentDescription = "신고",
+                                tint = ChatColors.TextGray
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("신고")
+                        }
+                    }
+
+                    DropdownMenuItem(onClick = {
+                        expanded = false
+                        onDeleteChatClick()
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "대화 삭제",
+                                tint = ChatColors.TextRed
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("대화 삭제", color = ChatColors.TextRed)
+                        }
+                    }
+                }
             }
         },
         backgroundColor = ChatColors.BackgroundWhite,
@@ -74,8 +148,8 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
         reverseLayout = false
     ) {
         items(messages) { message ->
@@ -96,20 +170,30 @@ fun MessageBubble(message: Message) {
             bottomEnd = 0.dp
         )
     } else {
-        RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp,
-            bottomStart = 0.dp,
-            bottomEnd = 12.dp
-        )
+        if (message.relatedConsultation != null) {
+            RoundedCornerShape(
+                topStart = 12.dp,
+                topEnd = 12.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp
+            )
+        } else {
+            RoundedCornerShape(
+                topStart = 12.dp,
+                topEnd = 12.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 12.dp
+            )
+        }
     }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = if (message.isUser) Alignment.End else Alignment.Start
     ) {
+        //채팅 버블 (Card)
         Card(
             shape = bubbleShape,
             backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
@@ -123,9 +207,54 @@ fun MessageBubble(message: Message) {
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             )
         }
+        // 리다이렉션이 있는 경우
+        if (!message.isUser && message.relatedConsultation != null) {
+            RelatedConsultationBlock(message)
+        }
     }
 }
 
+//관련상담 검색시 컴포서블
+@Composable
+fun RelatedConsultationBlock(message: Message) {
+    val blockShape = RoundedCornerShape(
+        topStart = 0.dp,
+        topEnd = 0.dp,
+        bottomStart = 8.dp,
+        bottomEnd = 8.dp
+    )
+
+    Card(
+        shape = blockShape,
+        backgroundColor = ChatColors.BackgroundGray,
+        elevation = 0.dp,
+        modifier = Modifier
+            .widthIn(max = 300.dp)
+            .padding(top = 0.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            if (message.relatedDate != null && message.directQuestion != null) {
+                Divider(color = ChatColors.TextGray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
+                Text(
+                    text = "${message.relatedDate}",
+                    color = ChatColors.TextGray, // 날짜 색상
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Text(
+                    text = message.directQuestion,
+                    color = ChatColors.BackgroundPuple,
+                    fontSize = 15.sp,
+                    // 사용자 정의 클릭 로직
+                    //`ChatScreen`에서 `onQuestionClick: (String) -> Unit` 콜백설정하셈!
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                    // .clickable { onQuestionClick(message.directQuestion) } // 클릭 리스너 추가해야함 ㅠ
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun MessageInput(
@@ -135,6 +264,13 @@ fun MessageInput(
     onMicClick: () -> Unit = {} // 마이크 버튼 클릭 콜백 (기본값 설정)
 ) {
     var textState by remember { mutableStateOf(TextFieldValue("")) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // 화면이 구성되면 자동으로 포커스 + 키보드 열기
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Row(
         modifier = Modifier
@@ -142,21 +278,40 @@ fun MessageInput(
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
+        //OutlinedTextField 대신 BasicTextField 사용으로 텍스트 중앙에 배치하도록
+        BasicTextField(
             value = currentText,
             onValueChange = onTextChange,
-            label = {},
-            placeholder = { Text(text = "메시지 전송하기" ) },
-            modifier = Modifier.weight(1f)
-                .height(48.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                backgroundColor = ChatColors.BackgroundInput,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                cursorColor = ChatColors.BackgroundPuple
-            ),
+            modifier = Modifier
+                .weight(1f)
+                .height(52.dp) 
+                .focusRequester(focusRequester),
+            textStyle = TextStyle(fontSize = 16.sp, color = LocalContentColor.current), 
             singleLine = true,
+            cursorBrush = SolidColor(ChatColors.BackgroundPuple),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = ChatColors.BackgroundInput,
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart 
+                ) {
+                    // 텍스트가 비어있을 때만 플레이스홀더 표시
+                    if (currentText.isEmpty()) {
+                        Text(
+                            text = "메시지 전송하기",
+                            fontSize = 16.sp,
+                            color = Color.Gray.copy(alpha = 0.7f) 
+                        )
+                    }
+                    // 실제 텍스트 입력 필드
+                    innerTextField()
+                }
+            }
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -166,7 +321,7 @@ fun MessageInput(
                 Icons.Filled.Mic,
                 contentDescription = "마이크",
                 tint = ChatColors.BackgroundPuple,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
 
@@ -176,13 +331,23 @@ fun MessageInput(
                 Icons.Filled.Send,
                 contentDescription = "전송",
                 tint = ChatColors.BackgroundPuple,
+                modifier = Modifier.size(32.dp)
             )
         }
     }
 }
 
-//임시 데이터 나중에 state에서 관리하는걸로 변경
-data class Message(val text: String, val isUser: Boolean)
+//임시데이터
+data class Message(
+    val text: String,
+    val isUser: Boolean,
+    // 하단에 표시할 '관련 상담 내용' 필드
+    val relatedConsultation: String? = null,
+    // 관련 상담이 있을 경우의 날짜
+    val relatedDate: String? = null,
+    // 관련 상담 아래에 표시할 다이렉트 질문
+    val directQuestion: String? = null
+)
 
 
 // 전송, 마이크 interaction 추가필요
@@ -194,21 +359,30 @@ fun ChatScreen(
     messages: List<Message>,
     sendMessage: (String) -> Unit,
     onBackClick: () -> Unit,
+    onFindSimilarClick: () -> Unit,
+    onReportClick: () -> Unit,
+    onDeleteChatClick: () -> Unit,
     //sendVoice, sendReport, findSimilarChat 등 추가
 ) {
     var textInput by remember { mutableStateOf("") }
 
-
     Scaffold(
         topBar = {
-            LogTalkAppBar(onBackClick = onBackClick)
+            LogTalkAppBar(onBackClick = onBackClick,
+                onFindSimilarClick = onFindSimilarClick,
+                onReportClick = onReportClick,
+                onDeleteChatClick = onDeleteChatClick
+            )
+
         },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .imePadding()
         ) {
+            Divider()
             ChatContent(
                 messages = messages,
                 modifier = Modifier.weight(1f)
@@ -221,8 +395,6 @@ fun ChatScreen(
                         textInput = "" // 메시지 전송 후 입력 필드 초기화
                     }
                 })
-
         }
-
     }
 }
