@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.ksp)
     id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
+    //firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -97,4 +99,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.config.ktx)
+    implementation(libs.firebase.analytics.ktx)
 }

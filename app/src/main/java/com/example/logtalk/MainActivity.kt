@@ -12,12 +12,15 @@ import com.example.logtalk.ui.login.LoginScreen
 import com.example.logtalk.ui.theme.LogTalkTheme
 import com.example.logtalk.ui.navigation.AppNavigation
 import dagger.hilt.android.AndroidEntryPoint
-
+import com.example.logtalk.config.EnvManager
+import com.example.logtalk.core.utils.Logger
 @AndroidEntryPoint
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        EnvManager.initialize()
 
         //하단 컨트롤러 숨기기(
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -26,6 +29,7 @@ class MainActivity : ComponentActivity() {
             controller.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        Logger.d("app start")
         enableEdgeToEdge()
         setContent {
             LogTalkTheme {
