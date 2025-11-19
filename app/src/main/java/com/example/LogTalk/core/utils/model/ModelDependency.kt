@@ -9,10 +9,9 @@ class DependencyContainer(private val envManager: EnvManager) {
     }
 
     // LLM
-    val llmService: OpenAILLMService by lazy {
-        OpenAILLMService(apiKey = openAiApiKey)
+    val llmService: OpenAILLMChatService by lazy {
+        OpenAILLMChatService(apiKey = openAiApiKey)
     }
-
     // STT
     val sttService: OpenAISttService by lazy {
         OpenAISttService(apiKey = openAiApiKey)

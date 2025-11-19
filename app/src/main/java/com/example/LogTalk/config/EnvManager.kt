@@ -11,10 +11,11 @@ object EnvManager {
     private val remoteConfig = Firebase.remoteConfig
 
     // 초기화
+    //onComplete 람다함수로 비동기 콜백 구현
     fun initialize(onComplete: (isSuccessful: Boolean) -> Unit) {
-        //debug시 5분마다, 앱 배포시 1시간마다 env 받기
+        //debug시 1분마다(로깅용), 앱 배포시 1시간마다 env 받기
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
+            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 60 else 3600
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
 
