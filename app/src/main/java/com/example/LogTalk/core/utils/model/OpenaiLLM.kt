@@ -1,32 +1,38 @@
 package com.example.logtalk.core.utils.model
 
+import com.aallam.openai.api.chat.ChatCompletionRequest
+import com.aallam.openai.api.chat.ChatMessage
+import com.aallam.openai.api.chat.ChatRole
+import com.aallam.openai.api.http.Timeout
+import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.client.OpenAI
+import kotlin.time.Duration.Companion.seconds
 
-interface LLMService {
-    suspend fun GetUserResponse(prompt: String): String
-}
 
-//채팅에 사용할 LLM
-class OpenAILLMChatService(private val apiKey: String): LLMService {
-    // OpenAI SDK (Retrofit 기반 등)를 사용하여 클라이언트 설정
-    private val openAIClient: OpenAI = OpenAI(
-        // API 키를 주입받아 사용
-        token = apiKey
+
+class OpenAILLMChatService(private val apiKey: String) {
+
+    private val client = OpenAI(
+        token = apiKey,
+        timeout = Timeout(socket = 60.seconds)
     )
 
-    override suspend fun getLlmResponse(prompt: String): String {
-        // 실제 API 호출 로직
-        // 예: chat.completions API 사용
-        val completion = openAIClient.chat.completions.create(
-            request = ChatCompletionRequest(
-                model = ModelId("gpt-4o-mini"),
-                messages = listOf(
-                    ChatMessage(
-                        role = ChatRole.User,
-                        content = prompt
-                    )
+    // override 제거
+    suspend fun getUserResponse(prompt: String): String {
+        val request = ChatCompletionRequest(
+            model = ModelId("gpt-4o-mini"),
+            messages = listOf(
+                ChatMessage(
+                    role = ChatRole.User,
+                    content = prompt
                 )
-            )
+            ),
+            maxTokens = 2000
         )
-        return completion.choices.first().message.content ?: ""
+
+        val response = client.chatCompletion(request)
+
+        return response.choices.firstOrNull()?.message?.content ?: ""
     }
+
 }

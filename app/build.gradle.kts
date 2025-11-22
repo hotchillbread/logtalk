@@ -108,4 +108,5 @@ dependencies {
 
     //openai
     implementation(libs.openai.client)
+    //implementation("com.squareup.okio:okio:3.9.0")
 }

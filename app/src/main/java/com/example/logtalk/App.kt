@@ -7,11 +7,15 @@ import com.google.android.gms.tasks.Tasks.await
 import dagger.hilt.android.HiltAndroidApp
 import com.example.logtalk.config.EnvManager
 import com.example.logtalk.core.utils.model.DependencyContainer
+import com.example.logtalk.data.AppDatabase
 
 @HiltAndroidApp
 class App : Application() {
 
+    //의존성 주입
     lateinit var container: DependencyContainer
+    //db 연결, 전역에서 db 사용 가능
+    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
     override fun onCreate() {
         super.onCreate()

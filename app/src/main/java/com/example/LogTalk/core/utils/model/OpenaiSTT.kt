@@ -1,23 +1,35 @@
 package com.example.logtalk.core.utils.model
 
+import com.aallam.openai.api.audio.TranscriptionRequest
+import com.aallam.openai.api.file.FileSource
+import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.client.OpenAI
+import kotlinx.io.RawSource
 import java.io.File
+import okio.source
 
 interface SttService {
     suspend fun transcribeAudio(audioFile: File): String
 }
 
-// 2. 구현체
 class OpenAISttService(private val apiKey: String) : SttService {
-    // ... 클라이언트 초기화 로직 (LLM과 동일한 클라이언트 사용 가능)
-    private val openAIClient: OpenAI = OpenAI(token = apiKey)
+
+    private val client: OpenAI = OpenAI(token = apiKey)
 
     override suspend fun transcribeAudio(audioFile: File): String {
-        // 실제 Whisper API 호출 로직
-        val request = AudioTranscribeRequest(
-            audioFile = audioFile,
-            model = ModelId("whisper-1")
+
+
+        val fileSource = FileSource(
+            name = audioFile.name,
+            source = audioFile.source() as RawSource
         )
-        val transcription = openAIClient.audio.transcriptions.create(request)
-        return transcription.text
+
+        val request = TranscriptionRequest(
+            audio = fileSource,           // ✔ FileSource 사용
+            model = ModelId("gpt-4o-mini-transcribe")
+        )
+
+        val result = client.transcription(request)
+        return result.text
     }
 }
