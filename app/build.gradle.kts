@@ -105,4 +105,8 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.config.ktx)
     implementation(libs.firebase.analytics.ktx)
+
+    //openai
+    implementation(libs.openai.client)
+    //implementation("com.squareup.okio:okio:3.9.0")
 }
