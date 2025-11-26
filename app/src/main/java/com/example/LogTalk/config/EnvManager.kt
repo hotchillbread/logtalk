@@ -11,17 +11,18 @@ object EnvManager {
     private val remoteConfig = Firebase.remoteConfig
 
     // 초기화
-    fun initialize() {
-        //debug시 5분마다, 앱 배포시 1시간마다 env 받기
+    //onComplete 람다함수로 비동기 콜백 구현
+    fun initialize(onComplete: (isSuccessful: Boolean) -> Unit) {
+        //debug시 1분마다(로깅용), 앱 배포시 1시간마다 env 받기
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 0 else 3600
+            minimumFetchIntervalInSeconds = if (BuildConfig.DEBUG) 60 else 3600
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
 
-        fetchAndActivate()
+        fetchAndActivate(onComplete)
     }
 
-    private fun fetchAndActivate() {
+    private fun fetchAndActivate(onComplete: (isSuccessful: Boolean) -> Unit) {
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -29,8 +30,11 @@ object EnvManager {
                     Logger.d("Remote Config 패치 성공. 업데이트 여부: $updated")
                     Logger.d("API Base URL: ${getOpenaiApiKey()}")
 
+                    onComplete(true)
                 } else {
                     Logger.e("Remote Config 패치 실패")
+
+                    onComplete(false)
                 }
             }
     }
