@@ -17,25 +17,26 @@ import com.example.logtalk.core.utils.Logger
 import com.example.logtalk.data.AppDatabase
 
 @AndroidEntryPoint
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //db 연결
-        val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
-
-        //env 의존성 주입
-        EnvManager.initialize { isSuccessful ->
-            if (isSuccessful) {
-                Logger.d("API Key 준비됨.")
-            } else {
-                Logger.e("초기화 실패. 기본 설정으로 앱을 실행합니다.")
-                throw RuntimeException("앱의 환경설정 로드 실패")
+        // 1. EnvManager 초기화
+        // (AppModule에서 provideApiKey를 하려면 여기서 초기화가 먼저 되어야 안전합니다.)
+        try {
+            EnvManager.initialize { isSuccessful ->
+                if (isSuccessful) {
+                    Logger.d("API Key 준비됨.")
+                } else {
+                    Logger.e("초기화 실패.")
+                    // 여기서 종료하거나 에러 화면 처리가 필요할 수 있음
+                }
             }
+        } catch (e: Exception) {
+            Logger.e("환경설정 로드 중 예외 발생: ${e.message}")
         }
 
-        //하단 컨트롤러 숨기기(
+        // 2. 시스템 UI 설정
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).let { controller ->
             controller.hide(WindowInsetsCompat.Type.navigationBars())
@@ -45,9 +46,11 @@ class MainActivity : ComponentActivity() {
 
         Logger.d("app start")
         enableEdgeToEdge()
+
+        // 3. UI 시작 (DB 초기화 코드는 삭제됨 -> Hilt가 관리)
         setContent {
             LogTalkTheme {
-                AppNavigation()
+                AppNavigation() // 여기서 내부적으로 hiltViewModel()을 호출하며 DB 사용됨
             }
         }
     }

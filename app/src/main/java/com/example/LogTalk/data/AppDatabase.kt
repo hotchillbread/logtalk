@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.logtalk.core.utils.Logger
-import com.example.logtalk.data.local.MessageDao
+import com.example.logtalk.data.local.ChatDao
 import com.example.logtalk.data.local.MessageData
 import com.example.logtalk.data.local.Title
 import com.example.logtalk.data.local.TitleDao
@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
     //Dao 정의
     abstract fun userDao(): UserDao
     abstract fun titleDao(): TitleDao
-    abstract fun messageDao(): MessageDao
+    abstract fun messageDao(): ChatDao
     companion object {
         @Volatile // 모든 스레드에서 즉시 변경 사항을 볼 수 있도록
         private var INSTANCE: AppDatabase? = null

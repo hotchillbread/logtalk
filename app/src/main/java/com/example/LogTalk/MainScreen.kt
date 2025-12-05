@@ -1,16 +1,8 @@
 package com.example.logtalk
 
-
 import android.app.Activity
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -25,44 +17,52 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import com.example.logtalk.ui.home.HomeScreen
 import com.example.logtalk.ui.navigation.MainScreenRoutes
-import com.example.logtalk.ui.chat.ChatScreen
-import com.example.logtalk.ui.chat.Message
 import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
-import com.example.logtalk.ui.home.HomeScreen
+
+// 채팅 목록 화면 (임시로 여기에 정의하거나 별도 파일로 분리 추천)
+// 실제로는 DB에서 채팅방 목록(Title 엔티티 리스트)을 가져와 보여주는 화면이어야 합니다.
+@Composable
+fun ChatListScreen(onChatClick: (Long) -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(onClick = { onChatClick(1L) }) { // 예: ID가 1인 채팅방으로 이동
+            Text("1번 채팅방 입장 (테스트)")
+        }
+    }
+}
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onChatClick: (Long) -> Unit // AppNavigation에서 전달받은 네비게이션 동작
+) {
     val view = LocalView.current
     val window = (view.context as Activity).window
 
+    // 상태바/네비게이션바 색상 설정
     SideEffect {
         window.statusBarColor = Color.White.toArgb()
         window.navigationBarColor = Color.White.toArgb()
-
         WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
     }
-    // nav 생성
+
     val mainNavController = rememberNavController()
 
-    // 하단 탭 설정
     val items = listOf(
         MainScreenRoutes.Home,
-        MainScreenRoutes.Chat,
+        MainScreenRoutes.Chat, // 여기서는 '채팅 목록'을 의미
         MainScreenRoutes.Settings,
     )
 
     Scaffold(
         bottomBar = {
             Column {
-
                 Divider(
-                    color = Color.LightGray.copy(alpha=0.8f),
+                    color = Color.LightGray.copy(alpha = 0.8f),
                     thickness = 0.5.dp
                 )
-
                 NavigationBar(
                     containerColor = Color.White,
                     modifier = Modifier.height(72.dp),
@@ -72,8 +72,7 @@ fun MainScreen() {
                     val currentDestination = navBackStackEntry?.destination
 
                     items.forEach { screen ->
-                        val isSelected =
-                            currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                        val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
@@ -88,82 +87,59 @@ fun MainScreen() {
                             icon = {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.padding(top = 0.dp, bottom = 0.dp)
+                                    verticalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
-                                        screen.icon,
+                                        imageVector = screen.icon,
                                         contentDescription = screen.label,
                                         modifier = Modifier.size(26.dp),
-                                        tint = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha=0.8f)
+                                        tint = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha = 0.8f)
                                     )
-                                    Spacer(modifier = Modifier.height(0.dp))
                                     Text(
                                         text = screen.label,
-                                        fontSize =14.sp,
-                                        color = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha=0.8f)
+                                        fontSize = 14.sp,
+                                        color = if (isSelected) LoginColors.TextPurple else LoginColors.TextGray.copy(alpha = 0.8f)
                                     )
                                 }
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = LoginColors.TextPurple,
-                                unselectedIconColor = LoginColors.TextGray,
-                                selectedTextColor = LoginColors.TextPurple,
-                                unselectedTextColor = LoginColors.TextGray,
-                                indicatorColor = LoginColors.BackgroundWhite,
+                                indicatorColor = Color.White // 선택 시 배경색 제거
                             )
                         )
-
                     }
                 }
             }
         }
     ) { innerPadding ->
-        //화면 내부에 nav 호스팅
         NavHost(
             navController = mainNavController,
-            startDestination = MainScreenRoutes.Home.route, //시작은 home부터 하도록 설정
+            startDestination = MainScreenRoutes.Home.route,
             modifier = Modifier.padding(innerPadding)
-
         ) {
-
-            composable(MainScreenRoutes.Home.route) { HomeScreen() }
-            composable(MainScreenRoutes.Chat.route) { ChatScreen(
-                messages = dummyMessages,
-                sendMessage = {
-                    // 실제 메시지 전송 로직 구현 (ViewModel 호출 등)
-                    //messages.add(Message(text, true))
-                },
-                // 뒤로가기 액션
-                onBackClick = {
-                    mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
-                },
-                onFindSimilarClick = { /* TODO: 비슷한 상담 찾기 로직 */ },
-                onReportClick = { /* TODO: 신고 로직 */ },
-                onDeleteChatClick = { /* TODO: 대화 삭제 로직 */ }
-            )
+            // 1. 홈 화면
+            composable(MainScreenRoutes.Home.route) {
+                // HomeScreen 내부에서 "상담 시작하기" 등의 버튼을 누르면
+                // onChatClick을 호출하도록 HomeScreen도 수정이 필요할 수 있습니다.
+                HomeScreen()
             }
+
+            // 2. 채팅 목록 탭 (수정됨)
+            composable(MainScreenRoutes.Chat.route) {
+                // 기존 ChatScreen(상세) 대신 목록 화면을 배치해야 합니다.
+                // 여기서 채팅방을 클릭하면 AppNavigation의 chat/{titleId}로 이동합니다.
+                ChatListScreen(onChatClick = onChatClick)
+            }
+
+            // 3. 설정 화면
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                        if (mainNavController.previousBackStackEntry != null) {
+                            mainNavController.popBackStack()
+                        }
                     }
                 )
             }
         }
     }
 }
-
-// 테스트용 더미 데이터
-val dummyMessages: List<Message> = listOf(
-    Message("안녕하세요! 로그톡 봇입니다.", isUser = false),
-    Message("안녕하세요!", true),
-    Message(
-        "사용자님, 고민에 대해 다시 생각해볼 시간을 드릴게요.",
-        false,
-        relatedConsultation = "해당 상담내역이 현재 상담과 비슷한 상담을 하고있어요.",
-        relatedDate = "2025.11.02",
-        directQuestion = "너 생각에는 내가 재수강을 하는게 좋을까?"
-    ),
-    Message("고민이 많으시군요.", false)
-)
