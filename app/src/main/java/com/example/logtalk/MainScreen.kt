@@ -22,12 +22,14 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import com.example.logtalk.ui.chat.data.Message
+import com.example.logtalk.ui.chat.screen.ChatScreen
 import com.example.logtalk.ui.navigation.MainScreenRoutes
-import com.example.logtalk.ui.chat.ChatScreen
-import com.example.logtalk.ui.chat.Message
+
 import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
 import com.example.logtalk.ui.home.HomeScreen
@@ -129,20 +131,13 @@ fun MainScreen() {
 
             composable(MainScreenRoutes.Home.route) { HomeScreen() }
             composable(MainScreenRoutes.Chat.route) { ChatScreen(
-                messages = dummyMessages,
-                sendMessage = {
-                    // 실제 메시지 전송 로직 구현 (ViewModel 호출 등)
-                    //messages.add(Message(text, true))
-                },
-                // 뒤로가기 액션
                 onBackClick = {
                     mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
                 },
-                onFindSimilarClick = { /* TODO: 비슷한 상담 찾기 로직 */ },
-                onReportClick = { /* TODO: 신고 로직 */ },
-                onDeleteChatClick = { /* TODO: 대화 삭제 로직 */ }
+                viewModel = viewModel()
             )
             }
+            //여기서 viewmodel 라우팅 해줘야돼요!!!!!! 꼭 하자 OK?
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
                     onBackClick = {
@@ -156,14 +151,42 @@ fun MainScreen() {
 
 // 테스트용 더미 데이터
 val dummyMessages: List<Message> = listOf(
-    Message("안녕하세요! 로그톡 봇입니다.", isUser = false),
-    Message("안녕하세요!", true),
+    // 1. 봇 메시지 (ID: 1)
     Message(
-        "사용자님, 고민에 대해 다시 생각해볼 시간을 드릴게요.",
-        false,
-        relatedConsultation = "해당 상담내역이 현재 상담과 비슷한 상담을 하고있어요.",
-        relatedDate = "2025.11.02",
-        directQuestion = "너 생각에는 내가 재수강을 하는게 좋을까?"
+        id = 1L,
+        text = "안녕하세요! 로그톡 봇입니다. 어떤 고민이 있으신가요?",
+        isUser = false
     ),
-    Message("고민이 많으시군요.", false)
+
+    // 2. 사용자 메시지 (ID: 2)
+    Message(
+        id = 2L,
+        text = "요즘 진로 문제 때문에 고민이 많아요. 전공을 바꿔야 할까요?",
+        isUser = true
+    ),
+
+    // 3. 봇 메시지 - 관련 상담 제안 포함 (ID: 3)
+    // relatedConsultation, relatedDate, directQuestion 필드를 활용한 예시
+    Message(
+        id = 3L,
+        text = "사용자님의 고민과 비슷한 내용을 이전에 상담하셨습니다. 관련 상담 내용을 참고해보시는 건 어떨까요?",
+        isUser = false,
+        relatedConsultation = "지난 상담에서는 이직을 고민하셨고, 결국 성공적인 결정을 내리셨습니다.",
+        relatedDate = "2025.11.02",
+        directQuestion = "지금 느끼는 불안감의 핵심 원인은 무엇이라고 생각하시나요?"
+    ),
+
+    // 4. 사용자 메시지 (ID: 4)
+    Message(
+        id = 4L,
+        text = "네, 그때와 비슷한 복잡한 감정인 것 같아요.",
+        isUser = true
+    ),
+
+    // 5. 봇 메시지 (ID: 5)
+    Message(
+        id = 5L,
+        text = "이해합니다. 그럼 저희가 함께 이 문제를 깊이 있게 탐색해 봅시다.",
+        isUser = false
+    )
 )

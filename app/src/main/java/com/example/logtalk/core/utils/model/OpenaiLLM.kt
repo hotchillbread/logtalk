@@ -33,7 +33,7 @@ class OpenAILLMChatService(
         resetHistory()
     }
 
-    private fun resetHistory() {
+    public fun resetHistory() {
         chatHistory.clear()
         chatHistory.add(
             ChatMessage(
