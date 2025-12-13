@@ -1,400 +1,66 @@
-package com.example.logtalk.ui.chat
+package com.example.logtalk.ui.chat.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons // Material 2/3 공통
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Send
-// import androidx.compose.material3.* // Material 3 임포트 제거
+import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.logtalk.ui.theme.ChatColors // ChatColors는 임시 정의되었다고 가정
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Text
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign // 중앙 정렬을 위해 추가
-import com.example.logtalk.ui.home.HomeScreen
-
-@Composable
-fun LogTalkAppBar(onBackClick: () -> Unit, //뒤로가기 (홈으로)
-                  onFindSimilarClick: () -> Unit, // 비슷한 상담 찾기
-                  onReportClick: () -> Unit,      // 신고
-                  onDeleteChatClick: () -> Unit   // 채팅 삭제
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    TopAppBar(
-        title = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Log",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Text(
-                    text = "Talk",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF6282E1)
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "뒤로 가기",
-                    modifier = Modifier.size( 28.dp),
-                    tint = ChatColors.TextGray
-                )
-            }
-        },
-        actions = {
-            Box(
-                modifier = Modifier.wrapContentSize(Alignment.TopEnd)
-            ) {
-                IconButton(onClick = { expanded = true }) { //클릭시 true로 변경
-                    Icon(
-                        Icons.Filled.MoreVert,
-                        contentDescription = "더 보기",
-                        modifier = Modifier.size(28.dp),
-                        tint = ChatColors.TextBlack
-                    )
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        onFindSimilarClick()
-                    }) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "비슷한 상담 찾기",
-                                tint = ChatColors.TextGray
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text("비슷한 상담 찾기")
-                        }
-                    }
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        onReportClick()
-                    }) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Flag,
-                                contentDescription = "신고",
-                                tint = ChatColors.TextGray
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text("신고")
-                        }
-                    }
-
-                    DropdownMenuItem(onClick = {
-                        expanded = false
-                        onDeleteChatClick()
-                    }) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "대화 삭제",
-                                tint = ChatColors.TextRed
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text("대화 삭제", color = ChatColors.TextRed)
-                        }
-                    }
-                }
-            }
-        },
-        backgroundColor = ChatColors.BackgroundWhite,
-        elevation = 0.dp
-    )
-}
-
-//대화
-@Composable
-fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
-        reverseLayout = false
-    ) {
-        items(messages) { message ->
-            MessageBubble(message = message)
-        }
-    }
-}
-
-// 메세지 버블
-@Composable
-fun MessageBubble(message: Message) {
-
-    val bubbleShape = if (message.isUser) {
-        RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp,
-            bottomStart = 12.dp,
-            bottomEnd = 0.dp
-        )
-    } else {
-        if (message.relatedConsultation != null) {
-            RoundedCornerShape(
-                topStart = 12.dp,
-                topEnd = 12.dp,
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp
-            )
-        } else {
-            RoundedCornerShape(
-                topStart = 12.dp,
-                topEnd = 12.dp,
-                bottomStart = 0.dp,
-                bottomEnd = 12.dp
-            )
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalAlignment = if (message.isUser) Alignment.End else Alignment.Start
-    ) {
-        //채팅 버블 (Card)
-        Card(
-            shape = bubbleShape,
-            backgroundColor = if (message.isUser) ChatColors.BackgroundPuple else ChatColors.BackgroundGray,
-            elevation = 0.dp,
-            modifier = Modifier.widthIn(max = 300.dp)
-        ) {
-            Text(
-                text = message.text,
-                color = if (message.isUser) ChatColors.TextWhite else ChatColors.TextBlack,
-                fontSize = 15.sp,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-            )
-        }
-        // 리다이렉션이 있는 경우
-        if (!message.isUser && message.relatedConsultation != null) {
-            RelatedConsultationBlock(message)
-        }
-    }
-}
-
-//관련상담 검색시 컴포서블
-@Composable
-fun RelatedConsultationBlock(message: Message) {
-    val blockShape = RoundedCornerShape(
-        topStart = 0.dp,
-        topEnd = 0.dp,
-        bottomStart = 8.dp,
-        bottomEnd = 8.dp
-    )
-
-    Card(
-        shape = blockShape,
-        backgroundColor = ChatColors.BackgroundGray,
-        elevation = 0.dp,
-        modifier = Modifier
-            .widthIn(max = 300.dp)
-            .padding(top = 0.dp)
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-            if (message.relatedDate != null && message.directQuestion != null) {
-                Divider(color = ChatColors.TextGray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
-                Text(
-                    text = "${message.relatedDate}",
-                    color = ChatColors.TextGray, // 날짜 색상
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                Text(
-                    text = message.directQuestion,
-                    color = ChatColors.BackgroundPuple,
-                    fontSize = 15.sp,
-                    // 사용자 정의 클릭 로직
-                    //`ChatScreen`에서 `onQuestionClick: (String) -> Unit` 콜백설정하셈!
-                    modifier = Modifier
-                        .padding(top = 2.dp)
-                    // .clickable { onQuestionClick(message.directQuestion) } // 클릭 리스너 추가해야함 ㅠ
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun MessageInput(
-    currentText: String, // 현재 텍스트 값
-    onTextChange: (String) -> Unit, // 텍스트 변경 콜백
-    onSendClick: () -> Unit, // 전송 버튼 클릭 콜백
-    onMicClick: () -> Unit = {} // 마이크 버튼 클릭 콜백 (기본값 설정)
-) {
-    var textState by remember { mutableStateOf(TextFieldValue("")) }
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    // 화면이 구성되면 자동으로 포커스 + 키보드 열기
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        //OutlinedTextField 대신 BasicTextField 사용으로 텍스트 중앙에 배치하도록
-        BasicTextField(
-            value = currentText,
-            onValueChange = onTextChange,
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp) 
-                .focusRequester(focusRequester),
-            textStyle = TextStyle(fontSize = 16.sp, color = LocalContentColor.current), 
-            singleLine = true,
-            cursorBrush = SolidColor(ChatColors.BackgroundPuple),
-            decorationBox = { innerTextField ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = ChatColors.BackgroundInput,
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart 
-                ) {
-                    // 텍스트가 비어있을 때만 플레이스홀더 표시
-                    if (currentText.isEmpty()) {
-                        Text(
-                            text = "메시지 전송하기",
-                            fontSize = 16.sp,
-                            color = Color.Gray.copy(alpha = 0.7f) 
-                        )
-                    }
-                    // 실제 텍스트 입력 필드
-                    innerTextField()
-                }
-            }
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        IconButton(onClick = onMicClick) {
-            Icon(
-                Icons.Filled.Mic,
-                contentDescription = "마이크",
-                tint = ChatColors.BackgroundPuple,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-
-        // 전송 아이콘 버튼
-        IconButton(onClick = onSendClick, enabled = currentText.isNotBlank()) {
-            Icon(
-                Icons.Filled.Send,
-                contentDescription = "전송",
-                tint = ChatColors.BackgroundPuple,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-    }
-}
-
-//임시데이터
-data class Message(
-    val text: String,
-    val isUser: Boolean,
-    // 하단에 표시할 '관련 상담 내용' 필드
-    val relatedConsultation: String? = null,
-    // 관련 상담이 있을 경우의 날짜
-    val relatedDate: String? = null,
-    // 관련 상담 아래에 표시할 다이렉트 질문
-    val directQuestion: String? = null
-)
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.logtalk.ui.chat.composable.ChatContent
+import com.example.logtalk.ui.chat.composable.LogTalkAppBar
+import com.example.logtalk.ui.chat.composable.MessageInput
+import com.example.logtalk.ui.chat.viewmodel.ChatViewModel
 
 
-// 전송, 마이크 interaction 추가필요
-// 상단 케밥버튼 인터페이스 추가
-// 뒤로가기 누르면 homeScreen()이동 해야함 <- 다른 사람이 하면 추가
-// 봇 메세지 누르면 신고하기 나오게 하기(화면만)
 @Composable
 fun ChatScreen(
-    messages: List<Message>,
-    sendMessage: (String) -> Unit,
+    // TODO: NavController 또는 Navigation 콜백을 위한 파라미터 추가
     onBackClick: () -> Unit,
-    onFindSimilarClick: () -> Unit,
-    onReportClick: () -> Unit,
-    onDeleteChatClick: () -> Unit,
-    //sendVoice, sendReport, findSimilarChat 등 추가
+    // ViewModel은 Hilt/Koin 등의 DI 라이브러리를 통해 주입받는 것이 권장되지만, 여기서는 임시로 viewModel() 사용
+    viewModel: ChatViewModel = viewModel()
 ) {
-    var textInput by remember { mutableStateOf("") }
+    val uiState = viewModel.uiState
 
     Scaffold(
         topBar = {
-            LogTalkAppBar(onBackClick = onBackClick,
-                onFindSimilarClick = onFindSimilarClick,
-                onReportClick = onReportClick,
-                onDeleteChatClick = onDeleteChatClick
+            LogTalkAppBar(
+                onBackClick = onBackClick, // 뒤로 가기 콜백
+                onFindSimilarClick = {
+                    // TODO: 비슷한 상담 찾기 Navigation 로직 구현 (후순위)
+                    viewModel.findSimilarConsultation()
+                },
+                onReportClick = {
+                    // TODO: 신고 기능 로직 구현 (후순위)
+                    viewModel.reportChat()
+                },
+                onDeleteChatClick = {
+                    // TODO: 대화 삭제 기능 로직 구현 (
+                    viewModel.deleteChat()
+                }
             )
-
         },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .imePadding()
+                .imePadding() // 키보드가 올라올 때 레이아웃이 밀리지 않도록 처리
         ) {
             Divider()
+
             ChatContent(
-                messages = messages,
+                messages = uiState.messages,
                 modifier = Modifier.weight(1f)
             )
-            MessageInput(currentText = textInput,
-                onTextChange = { textInput = it },
-                onSendClick = {
-                    if (textInput.isNotBlank()) {
-                        sendMessage(textInput)
-                        textInput = "" // 메시지 전송 후 입력 필드 초기화
-                    }
-                })
+
+            // TODO: (추가 기능) uiState.isLoading 상태에 따라 로딩 인디케이터 표시 로직 구현
+
+            MessageInput(
+                currentText = uiState.textInput,
+                onTextChange = viewModel::updateTextInput, // 텍스트 변경
+                onSendClick = viewModel::sendMessage,      // 메시지 전송
+                onMicClick = viewModel::sendVoiceMessage   // 마이크 클릭
+            )
         }
     }
 }
