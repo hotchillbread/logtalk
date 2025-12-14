@@ -21,10 +21,12 @@ internal object ChatColors {
     val BackgroundPuple = Color(0xFF6282E1)
     val BackgroundGray = Color(0xFFE7E4E4)
     val BackgroundWhite = Color(0xFFFFFFFF)
+    val BackgroundVert = Color(0xFFF3F3F3)
     val BackgroundInput = Color(0xFFF2F2F2)
 
     val TextBlack = Color(0xFF000000)
     val TextGray = Color(0xFF9CA3AF)
     val TextWhite = Color(0xFFFFFFFF)
+    val TextRed = Color(0xFFF24F4F)
     val TextBlackOpacity = TextBlack.copy(alpha = 0.4f)
 }

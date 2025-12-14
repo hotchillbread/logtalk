@@ -26,7 +26,7 @@ fun HomeHeader() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(56.dp)
             .padding(horizontal = 16.dp)
     ) {
         // 로고 (중앙)
