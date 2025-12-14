@@ -3,7 +3,11 @@
 *.iml
 .gradle
 /local.properties
+
 .DS_Store # macOS 관련 파일
+
+#gradle.properties 사용자 정의 설정 파일
+gradle.properties
 
 # IDE 로컬 폴더
 /.idea/
