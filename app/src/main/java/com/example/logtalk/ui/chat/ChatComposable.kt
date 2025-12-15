@@ -149,7 +149,7 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
         state = listState,
         reverseLayout = false // 가장 아래로 스크롤하는 방식이므로 reverseLayout = false 유지
     ) {
-        items(messages, key = { it.id.toString() + it.text }) { message ->
+        items(messages) { message ->
             MessageBubble(message = message)
         }
     }

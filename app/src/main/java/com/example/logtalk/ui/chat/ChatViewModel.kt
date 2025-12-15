@@ -67,6 +67,9 @@ class ChatViewModel @Inject constructor(
     private fun observeChatHistory(titleId: Long) {
         viewModelScope.launch {
             getChatHistoryUseCase(titleId).collectLatest { messages ->
+
+                Logger.d("Flow COLLECTED: Message count = ${messages.size}")
+
                 uiState = uiState.copy(
                     messages = messages,
                     isLoading = false
@@ -104,19 +107,17 @@ class ChatViewModel @Inject constructor(
                 sendMessageUseCase(userMessageText, history, currentTitleId)
 
                 if (!isFirstMessageSent) {
+                    Logger.d("TITLE GENERATION INPUT: $userMessageText")
                     generateAndSaveTitleUseCase(currentTitleId, userMessageText)
                     isFirstMessageSent = true
                 }
             } catch (e: Exception) {
                 uiState = uiState.copy(
                     errorMessage = "메시지 전송 실패: ${e.localizedMessage}",
-                )
-                Logger.e("전송 실패")
-            } finally {
-
-                uiState = uiState.copy(
+                    messages = history,
                     isLoading = false
                 )
+                Logger.e("전송 실패")
             }
         }
     }

@@ -20,7 +20,7 @@ interface MessageDao {
     suspend fun insertMessage(message:MessageData): Long
 
     //특정 채팅방 메세지 가져오기 (id기준)
-    @Query("SELECT * FROM messages WHERE parentTitleId = :parentTitleId = :parentTitleId ORDER BY createdAt ASC")
+    @Query("SELECT * FROM messages WHERE parentTitleId = :parentTitleId ORDER BY createdAt ASC")
     fun getMessagesByParentTitleId(parentTitleId: Long): Flow<List<MessageData>>
 
 
