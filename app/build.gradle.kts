@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.android.application)
@@ -32,6 +34,18 @@ android {
                 "proguard-rules.pro"
             )
         }
+        buildTypes {
+            debug {
+                val properties = Properties()
+                properties.load(project.rootProject.file("local.properties").inputStream())
+
+                this.buildConfigField(
+                    "String",
+                    "OPENAI_API_KEY",
+                    properties.getProperty("openaiApiKey") ?: "\"\""
+                )
+            }
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -49,6 +63,7 @@ android {
 }
 
 dependencies {
+
     // 기본 compose, android 의존성 패키지
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -91,6 +106,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp3.logging.interceptor)
 
+
     // 테스트 의존성
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -108,5 +124,10 @@ dependencies {
 
     //openai
     implementation(libs.openai.client)
-    //implementation("com.squareup.okio:okio:3.9.0")
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.auth)
 }

@@ -41,6 +41,6 @@ object EnvManager {
 
     // api key가져오기
     fun getOpenaiApiKey(): String {
-        return remoteConfig.getString("openai_api_key_url")
+        return BuildConfig.OPENAI_API_KEY
     }
 }

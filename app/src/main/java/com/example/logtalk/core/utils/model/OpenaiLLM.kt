@@ -6,6 +6,7 @@ import com.aallam.openai.api.chat.ChatRole
 import com.aallam.openai.api.http.Timeout
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.example.logtalk.core.utils.Logger
 import kotlin.time.Duration.Companion.seconds
 
 //인터페이스
@@ -13,12 +14,14 @@ interface OpenaiLLM {
     suspend fun getResponse(prompt: String): String
 }
 
+
 //기본 쳇봇
 class OpenAILLMChatService(
     private val apiKey: String,
     private val systemPrompt: String,
     private val maxHistoryMessages: Int = 12 //디폴트 벨류 설정
 ): OpenaiLLM {
+    init { Logger.d("OpenAI Client Init - Received Key: $apiKey") }
     private val client = OpenAI(
         token = apiKey,
         timeout = Timeout(socket = 60.seconds)
@@ -131,7 +134,7 @@ class OpenIllegitimateSummarize(private val apiKey: String, private val firstMes
         titleMessage.add(
             ChatMessage(
                 role = ChatRole.User,
-                content = "다음 내용을 바탕으로 대화 주제가 무엇인지 간략하게 요약해줘:\n$firstMessage"
+                content = "다음 내용을 바탕으로 대화 주제가 무엇인지 간략하게 요약해줘:\n$firstMessage" // 👈
             )
         )
     }

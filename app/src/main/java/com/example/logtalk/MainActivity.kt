@@ -17,25 +17,11 @@ import com.example.logtalk.core.utils.Logger
 import com.example.logtalk.data.AppDatabase
 
 @AndroidEntryPoint
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //db 연결
-        val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
-
-        //env 의존성 주입
-        EnvManager.initialize { isSuccessful ->
-            if (isSuccessful) {
-                Logger.d("API Key 준비됨.")
-            } else {
-                Logger.e("초기화 실패. 기본 설정으로 앱을 실행합니다.")
-                throw RuntimeException("앱의 환경설정 로드 실패")
-            }
-        }
-
-        //하단 컨트롤러 숨기기(
+        // 하단 컨트롤러 숨기기 및 EdgeToEdge 설정 (UI 관련 로직 유지)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, window.decorView).let { controller ->
             controller.hide(WindowInsetsCompat.Type.navigationBars())
