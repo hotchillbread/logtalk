@@ -81,11 +81,16 @@ fun MainScreen() {
 
                     items.forEach { screen ->
                         val isSelected =
-                            currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                            currentDestination?.route?.startsWith(screen.route) == true
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
-                                mainNavController.navigate(screen.route) {
+                                val targetRoute = if (screen == MainScreenRoutes.Chat) {
+                                    "${MainScreenRoutes.Chat.route}/-1"
+                                } else {
+                                    screen.route
+                                }
+                                mainNavController.navigate(targetRoute) {
                                     popUpTo(mainNavController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
