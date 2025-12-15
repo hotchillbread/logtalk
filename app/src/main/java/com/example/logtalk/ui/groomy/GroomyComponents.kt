@@ -1,5 +1,6 @@
 package com.example.logtalk.ui.groomy
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,6 +19,8 @@ import com.example.logtalk.R
 fun ProgressBarWithCloud(
     chatCount: Int // 채팅 횟수 (1회당 1%)
 ) {
+    Log.d("ProgressBarWithCloud", "Rendering with chatCount: $chatCount")
+
     // 채팅 횟수를 퍼센트로 변환 (최대 100%)
     val progressPercentage = chatCount.coerceAtMost(100)
     val progressFloat = progressPercentage / 100f // 0.0 ~ 1.0
@@ -40,6 +44,8 @@ fun ProgressBarWithCloud(
         else -> R.drawable.ic_progress5
     }
 
+    Log.d("ProgressBarWithCloud", "Using drawable resource for level: $progressLevel")
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,13 +55,17 @@ fun ProgressBarWithCloud(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
+                .height(120.dp)
+                .background(Color.Transparent),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = progressDrawable),
                 contentDescription = "Progress Cloud Level $progressLevel",
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(100.dp),
+                contentScale = ContentScale.Fit
             )
         }
 

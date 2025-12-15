@@ -1,5 +1,6 @@
 package com.example.logtalk.ui.groomy
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logtalk.domain.usecase.GetTotalMessageCountUseCase
@@ -7,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -19,10 +21,21 @@ class GroomyViewModel @Inject constructor(
     getTotalMessageCount: GetTotalMessageCountUseCase
 ) : ViewModel() {
 
+    companion object {
+        private const val TAG = "GroomyViewModel"
+    }
+
+    init {
+        Log.d(TAG, "GroomyViewModel initialized")
+    }
+
     /**
      * 전체 채팅 횟수
      */
     val totalMessageCount: StateFlow<Int> = getTotalMessageCount()
+        .onEach { count ->
+            Log.d(TAG, "Total message count: $count")
+        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

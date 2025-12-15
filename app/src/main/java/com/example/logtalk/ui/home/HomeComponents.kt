@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.R
+import android.util.Log
 
 @Composable
 fun HomeHeader(onGroomyClick: () -> Unit = {}) {
@@ -53,7 +54,10 @@ fun HomeHeader(onGroomyClick: () -> Unit = {}) {
             modifier = Modifier.align(Alignment.CenterEnd),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            IconButton(onClick = onGroomyClick) {
+            IconButton(onClick = {
+                Log.d("HomeHeader", "Groomy 아이콘 클릭!")
+                onGroomyClick()
+            }) {
                 Icon(
                     imageVector = Icons.Default.Description,
                     contentDescription = "Groomy",

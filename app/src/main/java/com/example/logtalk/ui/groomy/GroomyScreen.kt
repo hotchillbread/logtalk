@@ -1,9 +1,10 @@
 package com.example.logtalk.ui.groomy
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,14 +20,25 @@ fun GroomyScreen(
     onBackClick: () -> Unit,
     viewModel: GroomyViewModel = hiltViewModel()
 ) {
+    // State를 안전하게 수집
     val totalMessageCount by viewModel.totalMessageCount.collectAsState()
     val progressLevel by viewModel.progressLevel.collectAsState()
     val emotionMessage by viewModel.emotionMessage.collectAsState()
+
+    // 렌더링 로그
+    LaunchedEffect(Unit) {
+        Log.d("GroomyScreen", "GroomyScreen composed")
+    }
+
+    LaunchedEffect(totalMessageCount, progressLevel, emotionMessage) {
+        Log.d("GroomyScreen", "State updated - count: $totalMessageCount, level: $progressLevel, message: $emotionMessage")
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .systemBarsPadding()
     ) {
         // 헤더
         GroomyHeader(onBackClick = onBackClick)
@@ -36,13 +48,11 @@ fun GroomyScreen(
             thickness = 1.dp
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
-
         // 메인 컨텐츠
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
+                .padding(top = 40.dp, start = 20.dp, end = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -83,6 +93,14 @@ fun GroomyScreen(
                 fontSize = 14.sp,
                 color = Color.Gray
             )
+
+            // 디버그 정보
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "총 메시지 수: $totalMessageCount",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
         }
     }
 }
@@ -93,6 +111,7 @@ fun GroomyHeader(onBackClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
+            .background(Color.White)
             .padding(horizontal = 16.dp)
     ) {
         // 뒤로가기 버튼 (왼쪽)
@@ -101,7 +120,7 @@ fun GroomyHeader(onBackClick: () -> Unit) {
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "뒤로가기",
                 tint = Color.Gray
             )

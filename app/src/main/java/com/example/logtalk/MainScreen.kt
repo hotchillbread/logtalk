@@ -38,6 +38,7 @@ import com.example.logtalk.ui.theme.LoginColors
 import com.example.logtalk.ui.home.HomeScreen
 import com.example.logtalk.ui.navigation.OtherScreenRoutes
 import com.example.logtalk.ui.groomy.GroomyScreen
+import com.example.logtalk.ui.groomy.GroomyScreenSimple
 
 @Composable
 fun MainScreen() {
@@ -136,7 +137,9 @@ fun MainScreen() {
             composable(MainScreenRoutes.Home.route) {
                 HomeScreen(
                     onGroomyClick = {
+                        android.util.Log.d("MainScreen", "Groomy 네비게이션 시작!")
                         mainNavController.navigate(OtherScreenRoutes.GROOMY)
+                        android.util.Log.d("MainScreen", "Groomy 네비게이션 명령 완료")
                     },
                     onSessionClick = { sessionId ->
                         // 기존 세션 클릭 시 해당 채팅방으로 이동
@@ -182,8 +185,10 @@ fun MainScreen() {
                 )
             }
             composable(OtherScreenRoutes.GROOMY) {
-                GroomyScreen(
+                android.util.Log.d("MainScreen", "Groomy composable 진입!")
+                GroomyScreenSimple(
                     onBackClick = {
+                        android.util.Log.d("MainScreen", "Groomy 뒤로가기 클릭")
                         mainNavController.popBackStack() // HomeScreen으로 돌아가기
                     }
                 )
