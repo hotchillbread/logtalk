@@ -87,3 +87,9 @@ fun RelatedChatItem(chat: RelatedChat) {
         }
     }
 }
+
+data class RelatedChat(
+    val date: String,
+    val title: String,
+    val summary: String
+)
