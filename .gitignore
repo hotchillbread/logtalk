@@ -1,0 +1,36 @@
+
+# IDE 및 로컬 설정 파일
+*.iml
+.gradle
+/local.properties
+
+.DS_Store # macOS 관련 파일
+
+#gradle.properties 사용자 정의 설정 파일
+gradle.properties
+
+# IDE 로컬 폴더
+/.idea/
+
+# 보안/민감 정보
+secrets.properties
+keys.properties
+*.jks
+*.keystore
+google-services.json # Firebase/Google Services 설정
+/app/google-services.json
+
+# 빌드 및 임시 파일
+/build
+/captures
+/app/build
+.externalNativeBuild
+.cxx
+*.log
+
+# 빌드 최종 파일
+*.apk
+*.aab
+
+#OS 문제
+gradle.properties
