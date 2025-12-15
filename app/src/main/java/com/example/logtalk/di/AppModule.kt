@@ -4,6 +4,7 @@ import com.example.logtalk.domain.chat.ChatRepository
 import com.example.logtalk.domain.chat.ChatRepositoryImpl
 import com.example.logtalk.config.EnvManager
 import com.example.logtalk.core.utils.model.OpenAILLMChatService
+import com.example.logtalk.core.utils.model.OpenAIEmbeddingService
 import com.example.logtalk.core.utils.model.OpenIllegitimateSummarize
 import com.example.logtalk.data.repository.SessionRepositoryImpl
 import com.example.logtalk.domain.repository.SessionRepository
@@ -47,6 +48,12 @@ abstract class AppModule { // ✨ @Binds를 사용하므로 abstract로 변경
             // TODO: userProfilePrompt 로직
             val systemPrompt = "사용자에게 공감하고 문제 해결을 돕는 전문가 상담 챗봇입니다."
             return OpenAILLMChatService(apiKey, systemPrompt)
+        }
+
+        @Provides
+        @Singleton
+        fun provideOpenAIEmbeddingService(apiKey: String): OpenAIEmbeddingService {
+            return OpenAIEmbeddingService(apiKey)
         }
 
         @Provides

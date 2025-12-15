@@ -2,7 +2,7 @@ package com.example.logtalk.ui.relatedChat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.logtalk.domain.usecase.GetSimilarSessionsUseCase
+import com.example.logtalk.domain.relatedChat.GetSimilarSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
