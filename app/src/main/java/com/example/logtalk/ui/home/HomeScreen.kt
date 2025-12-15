@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 
 // Home 화면 - 실제 디자인 구현
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onGroomyClick: () -> Unit = {}) {
     // 임시 세션 데이터
     val sessions = remember {
         listOf(
@@ -28,7 +28,7 @@ fun HomeScreen() {
             .background(Color.White)
     ) {
         // 헤더
-        HomeHeader()
+        HomeHeader(onGroomyClick = onGroomyClick)
 
         androidx.compose.material3.HorizontalDivider(
             color = Color(0xFFF0F0F0),

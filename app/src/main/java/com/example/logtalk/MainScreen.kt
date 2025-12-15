@@ -29,10 +29,12 @@ import androidx.navigation.compose.*
 import com.example.logtalk.ui.chat.data.Message
 import com.example.logtalk.ui.chat.screen.ChatScreen
 import com.example.logtalk.ui.navigation.MainScreenRoutes
+import com.example.logtalk.ui.navigation.OtherScreenRoutes
 
 import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
 import com.example.logtalk.ui.home.HomeScreen
+import com.example.logtalk.ui.groomy.GroomyScreen
 
 @Composable
 fun MainScreen() {
@@ -129,7 +131,13 @@ fun MainScreen() {
 
         ) {
 
-            composable(MainScreenRoutes.Home.route) { HomeScreen() }
+            composable(MainScreenRoutes.Home.route) {
+                HomeScreen(
+                    onGroomyClick = {
+                        mainNavController.navigate(OtherScreenRoutes.GROOMY)
+                    }
+                )
+            }
             composable(MainScreenRoutes.Chat.route) { ChatScreen(
                 onBackClick = {
                     mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
@@ -140,6 +148,13 @@ fun MainScreen() {
             //여기서 viewmodel 라우팅 해줘야돼요!!!!!! 꼭 하자 OK?
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
+                    onBackClick = {
+                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                    }
+                )
+            }
+            composable(OtherScreenRoutes.GROOMY) {
+                GroomyScreen(
                     onBackClick = {
                         mainNavController.popBackStack() // HomeScreen으로 돌아가기
                     }

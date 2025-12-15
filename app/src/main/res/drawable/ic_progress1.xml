@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="80dp"
+    android:viewportWidth="120"
+    android:viewportHeight="80">
+
+    <!-- 구름 몸체 -->
+    <path
+        android:pathData="M30,50c-10,0 -18,-7 -18,-16s8,-16 18,-16c3,-10 14,-18 28,-18s25,8 28,18c10,0 18,7 18,16s-8,16 -18,16H30z"
+        android:fillColor="#E5E7EB"/>
+
+    <!-- 왼쪽 눈 -->
+    <path
+        android:pathData="M48,40m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
+        android:fillColor="#6B7280"/>
+
+    <!-- 오른쪽 눈 -->
+    <path
+        android:pathData="M72,40m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0"
+        android:fillColor="#6B7280"/>
+
+    <!-- 슬픈 입 (아래로 휘어진) -->
+    <path
+        android:pathData="M50,52 q10,-6 20,0"
+        android:strokeColor="#6B7280"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"/>
+</vector>
+

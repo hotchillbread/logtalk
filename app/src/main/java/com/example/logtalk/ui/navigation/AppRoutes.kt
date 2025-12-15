@@ -32,3 +32,8 @@ object  AuthScreenRoutes {
     const val LOGIN = "login"
     const val ONBOARDING = "onboarding"
 }
+
+//기타 라우트
+object OtherScreenRoutes {
+    const val GROOMY = "groomy"
+}

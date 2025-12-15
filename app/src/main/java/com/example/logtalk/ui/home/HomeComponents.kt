@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.logtalk.R
 
 @Composable
-fun HomeHeader() {
+fun HomeHeader(onGroomyClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,10 +53,10 @@ fun HomeHeader() {
             modifier = Modifier.align(Alignment.CenterEnd),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            IconButton(onClick = { /* TODO: 노트 */ }) {
+            IconButton(onClick = onGroomyClick) {
                 Icon(
                     imageVector = Icons.Default.Description,
-                    contentDescription = "노트",
+                    contentDescription = "Groomy",
                     tint = Color.Gray
                 )
             }
@@ -95,7 +95,6 @@ fun NewChatBanner(onClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // ChatGPT 아이콘 (Linear Gradient: #6282E1 → #FEC3FF)
-                // 배경 투명, 아이콘 선만 그라데이션
                 ChatGPTIconWithGradient(
                     modifier = Modifier.size(32.dp)
                 )
