@@ -6,8 +6,6 @@ import com.example.logtalk.config.EnvManager
 import com.example.logtalk.core.utils.model.OpenAILLMChatService
 import com.example.logtalk.core.utils.model.OpenIllegitimateSummarize
 import com.example.logtalk.core.utils.SystemPromptManager
-import com.example.logtalk.data.repository.SessionRepositoryImpl
-import com.example.logtalk.domain.repository.SessionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,20 +15,13 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class AppModule { // ✨ @Binds를 사용하므로 abstract로 변경
+abstract class AppModule {
 
     @Binds
     @Singleton
     abstract fun bindChatRepository(
         impl: ChatRepositoryImpl
     ): ChatRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindSessionRepository(
-        sessionRepositoryImpl: SessionRepositoryImpl
-    ): SessionRepository
-
 
     companion object {
 
@@ -58,7 +49,5 @@ abstract class AppModule { // ✨ @Binds를 사용하므로 abstract로 변경
         fun provideOpenIllegitimateSummarize(apiKey: String): OpenIllegitimateSummarize {
             return OpenIllegitimateSummarize(apiKey, firstMessage = "")
         }
-
-        // TODO: ㅇㅇ
     }
 }

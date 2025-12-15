@@ -1,5 +1,6 @@
 package com.example.logtalk.ui.chat.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,9 +28,14 @@ class ChatViewModel @Inject constructor(
 
     // 메시지 전송 로직
     fun sendMessage() {
-        if (uiState.textInput.isBlank()) return
+        Log.d("ChatViewModel", "sendMessage 호출됨")
+        if (uiState.textInput.isBlank()) {
+            Log.d("ChatViewModel", "입력이 비어있음")
+            return
+        }
 
         val userMessageText = uiState.textInput
+        Log.d("ChatViewModel", "메시지 전송: $userMessageText")
         updateTextInput("") // 입력 필드 초기화
 
         // 로딩 상태 표시
@@ -37,22 +43,25 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                Log.d("ChatViewModel", "ChatUseCase 호출 시작")
                 // ChatUseCase를 통해 사용자 메시지 전송 및 봇 응답 받기
                 val updatedMessages = chatUseCase.getBotResponseWithMessageUpdate(
                     userMessageText = userMessageText,
                     currentMessages = uiState.messages
                 )
 
+                Log.d("ChatViewModel", "업데이트된 메시지 수: ${updatedMessages.size}")
                 uiState = uiState.copy(
                     messages = updatedMessages,
                     isLoading = false
                 )
+                Log.d("ChatViewModel", "UI 상태 업데이트 완료")
             } catch (e: Exception) {
                 // 에러 발생 시 처리
+                Log.e("ChatViewModel", "메시지 전송 중 에러 발생", e)
                 uiState = uiState.copy(
                     isLoading = false
                 )
-                // TODO: 에러 메시지를 UI에 표시
             }
         }
     }

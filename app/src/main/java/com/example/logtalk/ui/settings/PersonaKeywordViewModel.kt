@@ -125,8 +125,8 @@ class PersonaKeywordViewModel @Inject constructor(
             // PersonaData 저장
             savePersonaUseCase(personaData)
 
-            // 선택된 키워드 저장
-            settingsRepository.saveSelectedKeywords(_selectedKeywords.value)
+            // 선택된 키워드 저장 (TODO: SettingsRepository에 메서드 구현 필요)
+            // settingsRepository.saveSelectedKeywords(_selectedKeywords.value)
 
             // SystemPromptManager에 실시간 반영
             systemPromptManager.updateSystemPrompt(prompt)
