@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text // Material 3 Text 사용 (선호도에 따라)
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,49 +51,51 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val logStyle = SpanStyle(color = Color.Black)
-    val talkStyle = SpanStyle(color = Color(0xFF6282E1))
-
-    val annotatedString = buildAnnotatedString {
-        withStyle(style = logStyle) {
-            append("Log")
-        }
-        withStyle(style = talkStyle) {
-            append("Talk")
-        }
-    }
-
-    TopAppBar(
-        title = {
-            Row(
-                modifier = Modifier.height(56.dp).fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+    Column {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color.White)
+                .padding(horizontal = 16.dp)
+        ) {
+            // 뒤로가기 버튼 (왼쪽)
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.align(Alignment.CenterStart)
             ) {
-                Text(
-                    text = annotatedString,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "뒤로 가기",
-                    modifier = Modifier.size(28.dp),
                     tint = ChatColors.TextGray
                 )
             }
-        },
-        actions = {
-            Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+
+            // LogTalk 로고 (중앙)
+            Row(
+                modifier = Modifier.align(Alignment.Center),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Log",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Text(
+                    text = "Talk",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6282E1)
+                )
+            }
+
+            // 더보기 메뉴 (오른쪽)
+            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                 IconButton(onClick = { expanded = true }) {
                     Icon(
                         Icons.Filled.MoreVert,
                         contentDescription = "더 보기",
-                        modifier = Modifier.size(28.dp),
                         tint = ChatColors.TextBlack
                     )
                 }
@@ -100,7 +103,6 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    //여기 누르면 아예 새로운 페이지로 가도록 설정
                     DropdownMenuItem(onClick = { expanded = false; onFindSimilarClick() }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.Search, contentDescription = "비슷한 상담 찾기", tint = ChatColors.TextGray)
@@ -124,10 +126,14 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
                     }
                 }
             }
-        },
-        backgroundColor = ChatColors.BackgroundWhite,
-        elevation = 0.dp
-    )
+        }
+
+        // 구분선
+        HorizontalDivider(
+            color = Color(0xFFF0F0F0),
+            thickness = 1.dp
+        )
+    }
 }
 
 @Composable

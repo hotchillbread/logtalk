@@ -23,7 +23,10 @@ import com.example.logtalk.R
 import android.util.Log
 
 @Composable
-fun HomeHeader(onGroomyClick: () -> Unit = {}) {
+fun HomeHeader(
+    onGroomyClick: () -> Unit = {},
+    onInsightClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,10 +67,13 @@ fun HomeHeader(onGroomyClick: () -> Unit = {}) {
                     tint = Color.Gray
                 )
             }
-            IconButton(onClick = { /* TODO: 설정 */ }) {
+            IconButton(onClick = {
+                Log.d("HomeHeader", "인사이트 아이콘 클릭!")
+                onInsightClick()
+            }) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "설정",
+                    imageVector = Icons.Default.TrendingUp,
+                    contentDescription = "인사이트",
                     tint = Color.Gray
                 )
             }

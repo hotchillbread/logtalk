@@ -1,12 +1,12 @@
 import java.util.Properties
 
 plugins {
-    id("com.google.dagger.hilt.android")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.dagger.hilt.android")
     id("androidx.navigation.safeargs.kotlin")
     //firebase
     id("com.google.gms.google-services")

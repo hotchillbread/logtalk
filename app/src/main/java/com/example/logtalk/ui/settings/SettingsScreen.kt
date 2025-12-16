@@ -34,8 +34,9 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(56.dp)
                 .background(Color.White)
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             // 왼쪽: 뒤로가기 아이콘 + 설정 텍스트
             Row(
@@ -66,15 +67,15 @@ fun SettingsScreen(
             ) {
                 Text(
                     text = "Log",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 Text(
                     text = "Talk",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF6282E1) // 파란색
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6282E1)
                 )
             }
         }

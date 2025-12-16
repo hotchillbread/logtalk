@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.logtalk.ui.insight.components.EmotionGraph
 import com.example.logtalk.ui.insight.components.InsightHeader
 import com.example.logtalk.ui.insight.components.RecentChatSummaryCard
@@ -26,7 +26,8 @@ import com.example.logtalk.ui.insight.components.StatisticsCard
 @Composable
 fun InsightScreen(
     onBackClick: () -> Unit,
-    viewModel: InsightViewModel = viewModel()
+    onChatClick: (Long) -> Unit = {},
+    viewModel: InsightViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -105,25 +106,22 @@ fun InsightScreen(
                 }
             }
 
-            // 전체 인사이트 그래프
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+            // 전체 인사이트 그래프 (대화가 1개 이상 있을 때만 표시)
+            if (uiState.emotionData.isNotEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                         ) {
                             Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -141,31 +139,40 @@ fun InsightScreen(
                                 )
                             }
 
-                            if (uiState.emotionTrend != null) {
-                                Surface(
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = Color(0xFF6282E1).copy(alpha = 0.2f)
-                                ) {
-                                    Text(
-                                        text = uiState.emotionTrend!!,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = Color(0xFF6282E1),
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                    )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // 그래프와 트렌드 메시지를 겹쳐서 표시
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                            ) {
+                                // 그래프
+                                EmotionGraph(
+                                    data = uiState.emotionData,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+
+                                // 트렌드 메시지 (그래프 위에 표시)
+                                if (uiState.emotionTrend != null) {
+                                    Surface(
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = Color(0xFF6282E1).copy(alpha = 0.9f),
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(16.dp)
+                                    ) {
+                                        Text(
+                                            text = uiState.emotionTrend!!,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color.White,
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // 그래프
-                        EmotionGraph(
-                            data = uiState.emotionData,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        )
                     }
                 }
             }
@@ -193,7 +200,10 @@ fun InsightScreen(
 
             // 최근 상담 목록
             items(uiState.recentChats) { chat ->
-                RecentChatSummaryCard(chat = chat)
+                RecentChatSummaryCard(
+                    chat = chat,
+                    onClick = { onChatClick(chat.sessionId) }
+                )
             }
         }
     }

@@ -149,6 +149,10 @@ fun MainScreen() {
                         mainNavController.navigate(OtherScreenRoutes.GROOMY)
                         android.util.Log.d("MainScreen", "Groomy 네비게이션 명령 완료")
                     },
+                    onInsightClick = {
+                        android.util.Log.d("MainScreen", "인사이트 네비게이션 시작!")
+                        mainNavController.navigate(OtherScreenRoutes.INSIGHT)
+                    },
                     onSessionClick = { sessionId ->
                         // 기존 세션 클릭 시 해당 채팅방으로 이동
                         mainNavController.navigate("${MainScreenRoutes.Chat.route}/$sessionId")
@@ -217,6 +221,24 @@ fun MainScreen() {
                     onBackClick = {
                         android.util.Log.d("MainScreen", "Groomy 뒤로가기 클릭")
                         mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                    }
+                )
+            }
+
+            composable(OtherScreenRoutes.INSIGHT) {
+                android.util.Log.d("MainScreen", "인사이트 composable 진입!")
+                com.example.logtalk.ui.insight.InsightScreen(
+                    onBackClick = {
+                        android.util.Log.d("MainScreen", "인사이트 뒤로가기 클릭")
+                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                    },
+                    onChatClick = { sessionId ->
+                        android.util.Log.d("MainScreen", "인사이트에서 대화 클릭: $sessionId")
+                        mainNavController.navigate("${MainScreenRoutes.Chat.route}/$sessionId") {
+                            popUpTo(OtherScreenRoutes.INSIGHT) {
+                                inclusive = true
+                            }
+                        }
                     }
                 )
             }

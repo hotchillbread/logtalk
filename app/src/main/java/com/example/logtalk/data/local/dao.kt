@@ -34,9 +34,17 @@ interface MessageDao {
     @Query("SELECT COUNT(messageId) FROM messages WHERE parentTitleId = :parentTitleId")
     suspend fun getMessageCount(parentTitleId: Long): Int
 
+    //특정 세션의 사용자 메시지 개수만 가져오기 (AI 메시지 제외)
+    @Query("SELECT COUNT(messageId) FROM messages WHERE parentTitleId = :parentTitleId AND sender = 'User'")
+    suspend fun getUserMessageCount(parentTitleId: Long): Int
+
     //전체 사용자 메시지 개수 가져오기 (Groomy용 - AI 답변 제외)
     @Query("SELECT COUNT(*) FROM messages WHERE sender = 'User'")
     fun getTotalMessageCount(): Flow<Int>
+
+    //전체 사용자 메시지 개수 가져오기 (suspend 버전 - 인사이트용)
+    @Query("SELECT COUNT(*) FROM messages WHERE sender = 'User'")
+    suspend fun getTotalUserMessageCount(): Int
 }
 
 @Dao

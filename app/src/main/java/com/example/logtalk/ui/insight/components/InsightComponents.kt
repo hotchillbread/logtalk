@@ -36,14 +36,24 @@ fun InsightHeader(onBackClick: () -> Unit) {
             )
         }
 
-        // 타이틀 (중앙)
-        Text(
-            text = "최근 요약",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        // LogTalk 로고 (중앙)
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Log",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Text(
+                text = "Talk",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF6282E1)
+            )
+        }
     }
 }
 
@@ -94,12 +104,16 @@ fun StatisticsCard(
 }
 
 @Composable
-fun RecentChatSummaryCard(chat: ChatSummary) {
+fun RecentChatSummaryCard(
+    chat: ChatSummary,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier

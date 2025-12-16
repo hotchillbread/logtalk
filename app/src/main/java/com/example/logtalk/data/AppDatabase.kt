@@ -14,7 +14,7 @@ import com.example.logtalk.data.local.UserProfile
 
 @Database(
     entities = [TitleData::class, MessageData::class, UserProfile::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -13,6 +13,7 @@ import com.example.logtalk.ui.home.binding.HomeBindings
 @Composable
 fun HomeScreen(
     onGroomyClick: () -> Unit = {},
+    onInsightClick: () -> Unit = {},
     onSessionClick: (Long) -> Unit = {},
     onNewChatClick: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
@@ -35,7 +36,10 @@ fun HomeScreen(
             .background(Color.White)
     ) {
         // 헤더
-        HomeHeader(onGroomyClick = onGroomyClick)
+        HomeHeader(
+            onGroomyClick = onGroomyClick,
+            onInsightClick = onInsightClick
+        )
 
         androidx.compose.material3.HorizontalDivider(
             color = Color(0xFFF0F0F0),

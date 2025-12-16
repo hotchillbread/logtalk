@@ -11,7 +11,8 @@ data class TitleData(
     val titleId: Long = 0L,
     val title: String,
     val embedding: ByteArray?, // 1024차원 벡터 저장 (TypeConverter 필요)
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val emotionPercentage: Float? = null // AI가 분석한 긍정 감정 퍼센트 (0~100)
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -23,6 +24,7 @@ data class TitleData(
         if (createdAt != other.createdAt) return false
         if (title != other.title) return false
         if (!embedding.contentEquals(other.embedding)) return false
+        if (emotionPercentage != other.emotionPercentage) return false
 
         return true
     }
@@ -32,6 +34,7 @@ data class TitleData(
         result = 31 * result + createdAt.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + embedding.contentHashCode()
+        result = 31 * result + (emotionPercentage?.hashCode() ?: 0)
         return result
     }
 }
