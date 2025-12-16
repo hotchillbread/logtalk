@@ -1,13 +1,11 @@
 package com.example.logtalk.domain.chat
 
+import com.example.logtalk.domain.chat.ChatRepository
 import com.example.logtalk.core.utils.Logger
 import com.example.logtalk.core.utils.model.OpenIllegitimateSummarize
-import com.example.logtalk.core.utils.model.OpenAIEmbeddingService
-import com.example.logtalk.data.local.TitleDao
 import com.example.logtalk.ui.chat.data.Message
 import com.example.logtalk.ui.chat.data.Title
 import kotlinx.coroutines.flow.Flow
-import java.nio.ByteBuffer
 import javax.inject.Inject
 
 //메시지 전송 & 응답
@@ -82,12 +80,13 @@ class DeleteChatUseCase @Inject constructor(
 }
 
 class GenerateAndSaveTitleUseCase @Inject constructor(
-    private val titleDao: TitleDao,
-    private val titleSummarizer: OpenIllegitimateSummarize,
-    private val embeddingGenerator: OpenAIEmbeddingService
+    private val chatRepository: ChatRepository,
+    private val titleSummarizer: OpenIllegitimateSummarize // 요약 전용 LLM
 ) {
 
     suspend operator fun invoke(titleId: Long, firstMessageText: String) {
+
+        // LLM에게 제목 요약 요청
         val newTitleText = titleSummarizer.getResponse(firstMessageText)
 
         val embeddingList: List<List<Double>> = embeddingGenerator.createEmbeddings(listOf(newTitleText))
@@ -102,23 +101,10 @@ class GenerateAndSaveTitleUseCase @Inject constructor(
         val embeddingByteArray: ByteArray = doubleEmbedding.toDoubleArray().toByteArray()
 
         val currentTitle = titleDao.getTitleById(titleId)
+        // DB 업데이트
+        chatRepository.updateTitleText(titleId, newTitleText)
 
-        if (currentTitle != null) {
-            val updatedTitle = currentTitle.copy(
-                title = newTitleText,
-                embedding = embeddingByteArray
-            )
 
-            titleDao.updateTitle(updatedTitle)
-            Logger.d("$titleId: 제목 및 임베딩 업데이트 완료 => '$newTitleText'")
-        } else {
-            Logger.e("Title with id $titleId not found. 업데이트를 건너뜁니다.")
-        }
+        Logger.d("$titleId: 제목 업데이트=> '$newTitleText'")
     }
-}
-
-fun DoubleArray.toByteArray(): ByteArray {
-    val byteBuffer = ByteBuffer.allocate(this.size * 8)
-    byteBuffer.asDoubleBuffer().put(this)
-    return byteBuffer.array()
 }

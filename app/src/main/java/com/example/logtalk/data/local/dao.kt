@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Insert
 import androidx.room.Delete
 import androidx.room.OnConflictStrategy
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 
@@ -61,11 +60,6 @@ interface TitleDao {
     // 5. 임베딩 벡터를 사용하여 비슷한 상담 찾기 (벡터 검색 쿼리)
     @Query("SELECT * FROM title WHERE titleId != :currentTitleId")
     suspend fun getAllEmbeddingsExceptCurrent(currentTitleId: Long): List<TitleData>
-    @Query("SELECT * FROM title WHERE titleId = :titleId")
-    suspend fun getTitleById(titleId: Long): TitleData? // 반환 타입 및 suspend 추가
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateTitle(title: TitleData)
 }
 
 @Dao

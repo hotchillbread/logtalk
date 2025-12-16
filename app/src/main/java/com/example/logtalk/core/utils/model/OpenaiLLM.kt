@@ -146,6 +146,7 @@ class OpenIllegitimateSummarize(private val apiKey: String): OpenaiLLM { // 💡
 
         val response = client.chatCompletion(request)
 
-        return response.choices.firstOrNull()?.message?.content ?: ""
+        return response.choices.firstOrNull()?.message?.content?.trim()?.replace("\"", "") ?: ""
     }
+
 }

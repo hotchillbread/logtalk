@@ -13,12 +13,16 @@ import com.example.logtalk.domain.chat.SendMessageUseCase
 import com.example.logtalk.ui.chat.data.ChatUiState
 import com.example.logtalk.ui.chat.data.Title
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import androidx.lifecycle.SavedStateHandle
 import com.example.logtalk.ui.chat.data.Message
 import com.example.logtalk.core.utils.Logger
+import com.example.logtalk.domain.chat.ChatRepository
+
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -27,9 +31,10 @@ class ChatViewModel @Inject constructor(
     private val sendMessageUseCase: SendMessageUseCase,
     private val deleteChatUseCase: DeleteChatUseCase,
     private val generateAndSaveTitleUseCase: GenerateAndSaveTitleUseCase,
+
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    //네비게이션 세팅해줘야함
     private val initialTitleId: Long = savedStateHandle.get<Long>("titleId") ?: -1L
 
     var uiState by mutableStateOf(ChatUiState())
@@ -37,15 +42,24 @@ class ChatViewModel @Inject constructor(
 
     private var currentTitleId: Long = initialTitleId
 
+    private var isFirstMessageSent: Boolean = false
+    private var currentChatTitle: Title? = null
+
+    //라우팅 핸들링용
     init {
         handleChatInitialization()
     }
 
+    //초기화
     private fun handleChatInitialization() {
         viewModelScope.launch {
             if (currentTitleId == -1L) {
                 currentTitleId = createNewChatUseCase()
+                isFirstMessageSent = false
+            } else {
+                isFirstMessageSent = true
             }
+
             observeChatHistory(currentTitleId)
         }
     }
@@ -53,11 +67,14 @@ class ChatViewModel @Inject constructor(
     private fun observeChatHistory(titleId: Long) {
         viewModelScope.launch {
             getChatHistoryUseCase(titleId).collectLatest { messages ->
+
                 Logger.d("Flow COLLECTED: Message count = ${messages.size}")
+
                 uiState = uiState.copy(
                     messages = messages,
                     isLoading = false
                 )
+                isFirstMessageSent = messages.size >= 2
             }
         }
     }
@@ -67,10 +84,9 @@ class ChatViewModel @Inject constructor(
     }
 
     fun sendMessage() {
-        if (uiState.textInput.isNullOrBlank() || uiState.isLoading) return
-        val userMessageText = uiState.textInput!!
+        if (uiState.textInput.isBlank() || uiState.isLoading) return
+        val userMessageText = uiState.textInput
         val history = uiState.messages
-        val isFirstMessageInChat = history.isEmpty()
 
         val newUserMessage = Message(
             id = System.currentTimeMillis(), // 임시 ID
@@ -78,28 +94,30 @@ class ChatViewModel @Inject constructor(
             isUser = true
         )
 
+        //메세지 배열에 추가라 여기는 문제없음
         uiState = uiState.copy(
             messages = history + newUserMessage,
             textInput = "",
             isLoading = true,
-            errorMessage = null
+            errorMessage = null // 이전 오류 메시지 초기화
         )
 
         viewModelScope.launch {
             try {
                 sendMessageUseCase(userMessageText, history, currentTitleId)
 
-                if (isFirstMessageInChat) {
+                if (!isFirstMessageSent) {
                     Logger.d("제목 텍스트: $userMessageText")
                     generateAndSaveTitleUseCase(currentTitleId, userMessageText)
+                    isFirstMessageSent = true
                 }
             } catch (e: Exception) {
                 uiState = uiState.copy(
                     errorMessage = "메시지 전송 실패: ${e.localizedMessage}",
-                    messages = history, // 실패 시 이전 메시지 기록으로 복원
+                    messages = history,
                     isLoading = false
                 )
-                Logger.e("전송 실패: ${e.message}")
+                Logger.e("전송 실패")
             }
         }
     }
