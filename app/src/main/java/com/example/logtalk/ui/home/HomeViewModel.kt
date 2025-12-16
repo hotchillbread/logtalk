@@ -16,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val observeSessions: ObserveSessionsUseCase,
-    private val createSession: CreateSessionUseCase
+    private val createSession: CreateSessionUseCase,
+    private val deleteSession: com.example.logtalk.domain.usecase.DeleteSessionUseCase
 ) : ViewModel() {
 
     private val intents = MutableSharedFlow<HomeIntent>(extraBufferCapacity = 64)
@@ -73,6 +74,7 @@ class HomeViewModel @Inject constructor(
                 is HomeIntent.PullToRefresh -> {
                     // Flow가 자동으로 업데이트하므로 별도 처리 불필요
                 }
+                is HomeIntent.DeleteSession -> onDeleteSession(intent.sessionId)
             }
         }
     }
@@ -80,6 +82,11 @@ class HomeViewModel @Inject constructor(
     private fun onFabClicked() = viewModelScope.launch {
         val newId = createSession()
         _navEvents.send(NavEvent.ToChat(newId))
+    }
+
+    private fun onDeleteSession(sessionId: Long) = viewModelScope.launch {
+        deleteSession(sessionId)
+        // Flow가 자동으로 업데이트되므로 별도 처리 불필요
     }
 
     private fun renderList(domainList: List<com.example.logtalk.domain.model.Session>) {

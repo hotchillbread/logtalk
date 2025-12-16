@@ -222,7 +222,8 @@ fun SearchBar(
 @Composable
 fun SessionList(
     sessions: List<SessionData>,
-    onSessionClick: (Long) -> Unit = {}
+    onSessionClick: (Long) -> Unit = {},
+    onSessionDelete: (Long) -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -232,7 +233,8 @@ fun SessionList(
         items(sessions.size) { index ->
             SessionCard(
                 session = sessions[index],
-                onClick = { onSessionClick(sessions[index].id) }
+                onClick = { onSessionClick(sessions[index].id) },
+                onDelete = { onSessionDelete(sessions[index].id) }
             )
         }
     }
@@ -241,8 +243,37 @@ fun SessionList(
 @Composable
 fun SessionCard(
     session: SessionData,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // 삭제 확인 다이얼로그
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("대화 삭제") },
+            text = { Text("'${session.title}' 대화를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text("삭제", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("취소")
+                }
+            }
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
@@ -293,6 +324,21 @@ fun SessionCard(
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // 삭제 버튼
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "삭제",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }

@@ -95,6 +95,9 @@ fun HomeScreen(
                     sessions = sessions,
                     onSessionClick = { sessionId ->
                         viewModel.sendIntent(HomeIntent.CardClicked(sessionId))
+                    },
+                    onSessionDelete = { sessionId ->
+                        viewModel.sendIntent(HomeIntent.DeleteSession(sessionId))
                     }
                 )
             }
