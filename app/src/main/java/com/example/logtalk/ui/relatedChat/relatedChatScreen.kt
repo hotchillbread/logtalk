@@ -22,6 +22,7 @@ import com.example.logtalk.ui.theme.ChatColors
 @Composable
 fun RelatedChatScreen(
     onBackClick: () -> Unit,
+    onConsultationSelected: (Long) -> Unit,
     viewModel: RelatedChatViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -31,9 +32,9 @@ fun RelatedChatScreen(
 
             LogTalkAppBar(
                 onBackClick = onBackClick,
-                onFindSimilarClick = { /* RelatedChatScreen에서는 무시 */ },
-                onReportClick = { /* RelatedChatScreen에서는 무시 */ },
-                onDeleteChatClick = { /* RelatedChatScreen에서는 무시 */ }
+                onFindSimilarClick = {  },
+                onReportClick = { },
+                onDeleteChatClick = {  }
             )
         }
     ) { paddingValues ->
@@ -42,7 +43,6 @@ fun RelatedChatScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // "방금 상담과 비슷한 상담 목록" 타이틀 영역 (이미지와 동일한 디자인)
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 10.dp)) {
                 Text(
                     text = "방금 상담과 비슷한 상담 목록",
@@ -67,7 +67,9 @@ fun RelatedChatScreen(
                 uiState.relatedChats.isEmpty() -> EmptyState()
                 else -> RelatedConsultationList(
                     items = uiState.relatedChats,
-                    onItemClick = viewModel::onConsultationItemClick
+                    onItemClick = { item ->
+                        viewModel.onConsultationItemClick(item, onConsultationSelected)
+                    }
                 )
             }
         }

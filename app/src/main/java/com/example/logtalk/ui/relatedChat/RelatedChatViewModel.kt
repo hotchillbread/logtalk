@@ -49,12 +49,17 @@ class RelatedChatViewModel @Inject constructor(
 
             if (consultationId == "NEW_CHAT_SESSION_FOR_ANALYSIS") {
                 Logger.d("RELATED_CHAT", "2. 새 채팅으로 판별되어 빈 목록 반환")
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    relatedChats = emptyList()
+                )
+                return@launch
             }
 
             try {
                 val currentTitleId = consultationId.toLong()
 
-                val results = findRelatedConsultationsUseCase(currentTitleId, topN = 5)
+                val results = findRelatedConsultationsUseCase(currentTitleId, topN = 7)
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -69,8 +74,12 @@ class RelatedChatViewModel @Inject constructor(
             }
         }
     }
-    fun onConsultationItemClick(item: RelatedConsultationItem) {
-        // TODO: 클릭된 상담 ID로 이동하거나, 해당 상담 내용을 표시하는 로직 구현
-        println("Clicked Consultation ID: ${item.id}")
+    fun onConsultationItemClick(item: RelatedConsultationItem, onSelected: (Long) -> Unit) {
+        try {
+            val consultationLongId = item.id.toLong()
+            onSelected(consultationLongId)
+        } catch (e: NumberFormatException) {
+            Logger.e("관련채팅불러오기 오류났어요!!@@@@!!@!!@!!")
+        }
     }
 }
