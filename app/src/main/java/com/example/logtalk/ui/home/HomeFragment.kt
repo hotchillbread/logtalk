@@ -25,13 +25,14 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class HomeFragment : Fragment(), HomeNavigator {
 
+    //XML 레이아웃을 안전하게 접근하도록 binding 설정
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private val vm: HomeViewModel by viewModels()
     private lateinit var adapter: HomeAdapter
 
-    private var debounceJob: Job? = null
+    private var debounceJob: Job? = null //마지막 입력만 처리하도록
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -41,11 +42,11 @@ class HomeFragment : Fragment(), HomeNavigator {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupRecycler()
-        setupSearch()
-        setupFab()
-        collectState()
-        collectNav()
+        setupRecycler() //리스트 연결
+        setupSearch() //검색 입력 처리
+        setupFab() //버튼 클릭
+        collectState() //상태 -> 화면
+        collectNav() //이동 이벤트
     }
 
     private fun setupRecycler() = with(binding.recycler) {
@@ -76,7 +77,7 @@ class HomeFragment : Fragment(), HomeNavigator {
         setOnClickListener { vm.sendIntent(HomeIntent.FabClicked) }
     }
 
-    private fun collectState() {
+    private fun collectState() { //화면 UI 렌더링
         viewLifecycleOwner.lifecycleScope.launch {
             vm.uiState.collect { state ->
                 when (state) {
@@ -91,7 +92,7 @@ class HomeFragment : Fragment(), HomeNavigator {
 
     private fun collectNav() {
         viewLifecycleOwner.lifecycleScope.launch {
-            vm.navEvents.collect { ev ->
+            vm.navEvents.collect { ev -> //화면 이동 이벤트 처리
                 when (ev) {
                     is HomeViewModel.NavEvent.ToChat -> toChat(ev.sessionId)
                 }
@@ -127,13 +128,13 @@ class HomeFragment : Fragment(), HomeNavigator {
         binding.tvEmptyDesc.text = message
     }
 
-    override fun toChat(sessionId: Long) {
+    override fun toChat(sessionId: Long) { //화면 이동 처리
         // NavGraph의 액션 ID/디렉션에 맞춰 수정
         val action = HomeFragmentDirections.actionHomeToChat(sessionId)
         findNavController().navigate(action)
     }
 
-    override fun onDestroyView() {
+    override fun onDestroyView() { //뷰 반환
         super.onDestroyView()
         _binding = null
     }

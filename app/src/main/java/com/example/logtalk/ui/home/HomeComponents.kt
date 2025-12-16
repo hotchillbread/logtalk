@@ -135,8 +135,6 @@ fun NewChatBanner(onClick: () -> Unit) {
 
 @Composable
 fun ChatGPTIconWithGradient(modifier: Modifier = Modifier) {
-    // Vector Drawable (XML)에 이미 Linear Gradient가 포함되어 있음
-    // #6282E1 (0%) → #FEC3FF (100%)
     Image(
         painter = painterResource(id = R.drawable.ic_chatgpt),
         contentDescription = "ChatGPT",
@@ -206,7 +204,7 @@ fun SearchBar(
                     )
                 }
 
-                // Clear 버튼 (검색어가 있을 때만 표시)
+                //Clear 버튼 (검색어가 있을 때만 표시)
                 if (query.isNotEmpty()) {
                     IconButton(
                         onClick = { onQueryChange("") },

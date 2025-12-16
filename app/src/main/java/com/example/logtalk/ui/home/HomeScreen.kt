@@ -8,8 +8,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.logtalk.ui.home.binding.HomeBindings
+import androidx.compose.material3.*
 
-// Home 화면 - 실제 디자인 구현
+//홈화면 Compose 구현체
 @Composable
 fun HomeScreen(
     onGroomyClick: () -> Unit = {},
@@ -21,7 +22,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
-    // NavEvent 처리
+    //NavEvent 처리
     LaunchedEffect(Unit) {
         viewModel.navEvents.collect { event ->
             when (event) {
@@ -35,26 +36,25 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // 헤더
         HomeHeader(
             onGroomyClick = onGroomyClick,
             onInsightClick = onInsightClick
         )
 
-        androidx.compose.material3.HorizontalDivider(
+        HorizontalDivider(
             color = Color(0xFFF0F0F0),
             thickness = 1.dp
         )
 
-        // 상담 시작 배너
+        //상담 시작 배너
         NewChatBanner(onClick = onNewChatClick)
 
-        androidx.compose.material3.HorizontalDivider(
+        HorizontalDivider(
             color = Color(0xFFF0F0F0),
             thickness = 1.dp
         )
 
-        // 검색 바
+        //검색 바
         SearchBar(
             query = searchQuery,
             onQueryChange = { query ->
@@ -62,17 +62,17 @@ fun HomeScreen(
             }
         )
 
-        androidx.compose.material3.HorizontalDivider(
+        HorizontalDivider(
             color = Color(0xFFF0F0F0),
             thickness = 1.dp
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 상태에 따른 UI 표시
+        //상태에 따른 UI 표시
         when (uiState) {
             is HomeUiState.Loading -> {
-                // 로딩 상태
+                //로딩 상태
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = androidx.compose.ui.Alignment.Center
@@ -106,12 +106,12 @@ fun HomeScreen(
                 )
             }
             is HomeUiState.Error -> {
-                // 에러 상태
+                //에러 상태
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
-                    androidx.compose.material3.Text(
+                    Text(
                         text = (uiState as HomeUiState.Error).message,
                         color = Color.Red
                     )

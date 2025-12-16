@@ -12,40 +12,34 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-/**
- * Groomy 화면의 ViewModel
- * 채팅 횟수 기반으로 감정 상태(프로그레스)를 계산
- */
+
+//Groomy 화면 ViewModel
+//채팅 횟수 기반으로 감정 progress를 계산
 @HiltViewModel
 class GroomyViewModel @Inject constructor(
     getTotalMessageCount: GetTotalMessageCountUseCase
 ) : ViewModel() {
-
+//GetTotalMessageCountUseCase → GroomyViewModel
     companion object {
         private const val TAG = "GroomyViewModel"
     }
-
+    //ViewModel이 언제 만들어졌는지 확인하는 디버깅 코드
     init {
         Log.d(TAG, "GroomyViewModel initialized")
     }
 
-    /**
-     * 전체 채팅 횟수
-     */
-    val totalMessageCount: StateFlow<Int> = getTotalMessageCount()
-        .onEach { count ->
+    //전체 메시지 수
+    val totalMessageCount: StateFlow<Int> = getTotalMessageCount() //Flow<Int>반환
+        .onEach { count -> //흘러가는 값 확인용
             Log.d(TAG, "Total message count: $count")
         }
-        .stateIn(
+        .stateIn( //Flow -> StateFlow로 변환
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = 0
         )
 
-    /**
-     * 채팅 횟수 기반 프로그레스 퍼센트 (0~100)
-     * 1회당 1% 증가
-     */
+    //progress 퍼센트(0~100)
     val progressPercentage: StateFlow<Int> = totalMessageCount
         .map { count -> count.coerceAtMost(100) }
         .stateIn(
@@ -54,14 +48,7 @@ class GroomyViewModel @Inject constructor(
             initialValue = 0
         )
 
-    /**
-     * 프로그레스 레벨 (1~5)
-     * 0~24%: 1번
-     * 25~49%: 2번
-     * 50~74%: 3번
-     * 75~99%: 4번
-     * 100%: 5번
-     */
+    //progress 레벨 5단계
     val progressLevel: StateFlow<Int> = progressPercentage
         .map { percentage ->
             when {
@@ -78,9 +65,7 @@ class GroomyViewModel @Inject constructor(
             initialValue = 1
         )
 
-    /**
-     * 감정 상태 메시지
-     */
+    //progress 레벨에 따른 감정 메시지
     val emotionMessage: StateFlow<String> = progressLevel
         .map { level ->
             when (level) {

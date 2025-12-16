@@ -14,7 +14,7 @@ class SessionCardViewHolder(
     fun bind(item: HomeItem.SessionItem) = with(binding) {
         tvTitle.text = item.title
         tvSubtitle.text = item.lastMessage ?: "메시지가 없습니다"
-        tvTime.text = HomeBindings.formatRelativeTime(item.updatedAt) // helper 사용
+        tvTime.text = HomeBindings.formatRelativeTime(item.updatedAt) //helper 사용
         root.setOnClickListener { onClick(item.id) }
         divider.visibility = View.VISIBLE
     }

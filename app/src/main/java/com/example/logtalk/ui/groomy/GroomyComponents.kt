@@ -14,28 +14,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.R
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun ProgressBarWithCloud(
-    chatCount: Int // 채팅 횟수 (1회당 1%)
+    chatCount: Int //채팅 횟수 1회당 1% up
 ) {
-    Log.d("ProgressBarWithCloud", "Rendering with chatCount: $chatCount")
+    //아래는 디버그용 코드(지금은 필요없어보여서 주석처리함)
+    //Log.d("ProgressBarWithCloud", "Rendering with chatCount: $chatCount")
 
-    // 채팅 횟수를 퍼센트로 변환 (최대 100%)
+    //채팅 횟수를 퍼센트로 변환 (최대 100%)
     val progressPercentage = chatCount.coerceAtMost(100)
     val progressFloat = progressPercentage / 100f // 0.0 ~ 1.0
 
-    // 퍼센트에 따른 프로그레스 레벨 (1~5)
-    // 0~24%: 1번, 25~49%: 2번, 50~74%: 3번, 75~99%: 4번, 100%: 5번
+    //퍼센트지에 따른 progressLevel
+    //0~24%: 1, 25~49%: 2, 50~74%: 3, 75~99%: 4, 100%: 5
     val progressLevel = when {
         progressPercentage in 0..24 -> 1
         progressPercentage in 25..49 -> 2
         progressPercentage in 50..74 -> 3
         progressPercentage in 75..99 -> 4
-        else -> 5 // 100%
+        else -> 5
     }
 
-    // progress 이미지 리소스 ID
+    //progressLevel에 따른 구름이 이미지 선택
     val progressDrawable = when (progressLevel) {
         1 -> R.drawable.ic_progress1
         2 -> R.drawable.ic_progress2
@@ -44,14 +47,15 @@ fun ProgressBarWithCloud(
         else -> R.drawable.ic_progress5
     }
 
-    Log.d("ProgressBarWithCloud", "Using drawable resource for level: $progressLevel")
+    //디버깅용 코드
+    //Log.d("ProgressBarWithCloud", "Using drawable resource for level: $progressLevel")
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
     ) {
-        // 구름 이미지
+        //구르미 이미지
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,9 +73,10 @@ fun ProgressBarWithCloud(
             )
         }
 
+        //Compose 용 여백 도구
         Spacer(modifier = Modifier.height(30.dp))
 
-        // 게이지바 배경
+        //게이지바 배경
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,7 +86,7 @@ fun ProgressBarWithCloud(
                     shape = RoundedCornerShape(6.dp)
                 )
         ) {
-            // 게이지바 진행 상태
+            //게이지바 진행 상태
             Box(
                 modifier = Modifier
                     .fillMaxWidth(progressFloat)
@@ -95,22 +100,22 @@ fun ProgressBarWithCloud(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 퍼센트 표시
+        //퍼센트지 표시
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            androidx.compose.material3.Text(
+            Text(
                 text = "0%",
                 color = Color.Gray,
                 fontSize = 14.sp
             )
-            androidx.compose.material3.Text(
+            Text(
                 text = "50%",
                 color = Color.Gray,
                 fontSize = 14.sp
             )
-            androidx.compose.material3.Text(
+            Text(
                 text = "100%",
                 color = Color.Gray,
                 fontSize = 14.sp
@@ -119,12 +124,12 @@ fun ProgressBarWithCloud(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 현재 퍼센트 및 채팅 횟수 표시
-        androidx.compose.material3.Text(
+        //현재 퍼센트지 및 채팅 횟수 표시
+        Text(
             text = "채팅 횟수: ${chatCount}회 ($progressPercentage%)",
             color = Color(0xFF6282E1),
             fontSize = 16.sp,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }

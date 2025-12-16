@@ -3,7 +3,8 @@ package com.example.logtalk.ui.home
 
 import com.example.logtalk.ui.home.adapter.item.HomeItem
 
-sealed interface HomeUiState {
+//출력
+sealed interface HomeUiState { //상태 누락 방지
     data object Loading : HomeUiState
     data object Empty : HomeUiState
     data class Content(val items: List<HomeItem>) : HomeUiState

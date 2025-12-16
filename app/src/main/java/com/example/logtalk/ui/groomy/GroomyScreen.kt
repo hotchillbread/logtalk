@@ -20,16 +20,16 @@ fun GroomyScreen(
     onBackClick: () -> Unit,
     viewModel: GroomyViewModel = hiltViewModel()
 ) {
-    // State를 안전하게 수집
+    //State 관련
     val totalMessageCount by viewModel.totalMessageCount.collectAsState()
     val progressLevel by viewModel.progressLevel.collectAsState()
     val emotionMessage by viewModel.emotionMessage.collectAsState()
 
-    // 렌더링 로그
+    //해당 화면이 화면 트리에 올라왔는지 확인
     LaunchedEffect(Unit) {
         Log.d("GroomyScreen", "GroomyScreen composed")
     }
-
+    //UI 상태 변경 유뮤 확인
     LaunchedEffect(totalMessageCount, progressLevel, emotionMessage) {
         Log.d("GroomyScreen", "State updated - count: $totalMessageCount, level: $progressLevel, message: $emotionMessage")
     }
@@ -40,7 +40,7 @@ fun GroomyScreen(
             .background(Color.White)
             .systemBarsPadding()
     ) {
-        // 헤더
+        //헤더(뒤로가기 + 타이틀)
         GroomyHeader(onBackClick = onBackClick)
 
         HorizontalDivider(
@@ -48,7 +48,7 @@ fun GroomyScreen(
             thickness = 1.dp
         )
 
-        // 메인 컨텐츠
+        //메인 컨텐츠
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -72,12 +72,12 @@ fun GroomyScreen(
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            // 구름 이미지와 프로그레스 바 (채팅 횟수 기반)
+            //구르미, 게이지바
             ProgressBarWithCloud(chatCount = totalMessageCount)
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 감정 상태 메시지
+            //감정 상태 메시지
             Text(
                 text = emotionMessage,
                 fontSize = 18.sp,
@@ -87,14 +87,14 @@ fun GroomyScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 프로그레스 레벨 표시 (디버그용)
+            //프로그레스 레벨 표시
             Text(
                 text = "레벨: $progressLevel / 5",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
 
-            // 디버그 정보
+            //총 메시지 수 표시
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "총 메시지 수: $totalMessageCount",
@@ -114,7 +114,7 @@ fun GroomyHeader(onBackClick: () -> Unit) {
             .background(Color.White)
             .padding(horizontal = 16.dp)
     ) {
-        // 뒤로가기 버튼 (왼쪽)
+        //뒤로가기 버튼 (왼쪽)
         IconButton(
             onClick = onBackClick,
             modifier = Modifier.align(Alignment.CenterStart)
@@ -126,7 +126,7 @@ fun GroomyHeader(onBackClick: () -> Unit) {
             )
         }
 
-        // 제목 (중앙)
+        //제목(중앙)
         Text(
             text = "Groomy",
             fontSize = 20.sp,

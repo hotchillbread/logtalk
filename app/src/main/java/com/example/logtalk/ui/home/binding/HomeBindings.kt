@@ -12,7 +12,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
-object HomeBindings {
+object HomeBindings { //상태가 필요없어서 싱글톤 유틸 객체가 적합
 
     // 리스트 바인딩
     @JvmStatic
