@@ -6,11 +6,13 @@ import com.example.logtalk.domain.relatedChat.RelatedChatRepository
 import com.example.logtalk.ui.chat.viewmodel.RelatedConsultationItem
 import java.nio.ByteBuffer
 import java.nio.DoubleBuffer
+import javax.inject.Inject
+
 interface FindRelatedConsultationsUseCase {
     suspend operator fun invoke(currentTitleId: Long, topN: Int = 5): List<RelatedConsultationItem>
 }
 
-class FindRelatedConsultationsUseCaseImpl(
+class FindRelatedConsultationsUseCaseImpl @Inject constructor(
     private val repository: RelatedChatRepository,
     private val embeddingService: EmbeddingService
 ) : FindRelatedConsultationsUseCase {

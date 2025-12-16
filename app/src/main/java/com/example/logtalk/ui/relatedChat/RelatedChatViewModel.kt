@@ -45,6 +45,11 @@ class RelatedChatViewModel @Inject constructor(
     private fun loadRelatedConsultations() {
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
         viewModelScope.launch {
+            Logger.d("RELATED_CHAT", "1. 진입한 consultationId: $consultationId")
+
+            if (consultationId == "NEW_CHAT_SESSION_FOR_ANALYSIS") {
+                Logger.d("RELATED_CHAT", "2. 새 채팅으로 판별되어 빈 목록 반환")
+            }
 
             try {
                 val currentTitleId = consultationId.toLong()

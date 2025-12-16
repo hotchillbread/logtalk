@@ -4,8 +4,9 @@ import com.example.logtalk.data.local.MessageDao
 import com.example.logtalk.data.local.TitleDao
 import com.example.logtalk.data.local.TitleData
 import com.example.logtalk.domain.relatedChat.RelatedChatRepository
+import javax.inject.Inject
 
-class RelatedChatRepositoryImpl(
+class RelatedChatRepositoryImpl @Inject constructor(
     private val titleDao: TitleDao,
     private val messageDao: MessageDao
 ) : RelatedChatRepository {
