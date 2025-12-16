@@ -14,24 +14,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-// LogTalkAppBar가 있는 패키지를 import합니다. (이전 사용자 코드 기반)
 import com.example.logtalk.ui.chat.composable.LogTalkAppBar
 import com.example.logtalk.ui.chat.viewmodel.RelatedChatViewModel
 import com.example.logtalk.ui.chat.viewmodel.RelatedConsultationItem
-import com.example.logtalk.ui.theme.ChatColors // 가정된 색상
+import com.example.logtalk.ui.theme.ChatColors
 
 @Composable
 fun RelatedChatScreen(
     onBackClick: () -> Unit,
-    viewModel: RelatedChatViewModel // 새로 정의된 ViewModel 주입
+    viewModel: RelatedChatViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
-            // LogTalkAppBar를 그대로 사용합니다.
-            // 이 화면에서는 '유사 상담 찾기', '신고', '대화 삭제' 기능이 필요 없지만
-            // 컴포저블 시그니처를 맞추기 위해 빈 람다를 전달합니다.
+
             LogTalkAppBar(
                 onBackClick = onBackClick,
                 onFindSimilarClick = { /* RelatedChatScreen에서는 무시 */ },
@@ -60,9 +57,6 @@ fun RelatedChatScreen(
                     color = ChatColors.TextBlack
                 )
             }
-            // 구분선은 LogTalkAppBar에 이미 포함되어 있으나, UI 이미지상 이 제목 섹션 아래에 한 번 더 들어가는 것이 자연스러워 보입니다.
-            // LogTalkAppBar 하단에 Divider가 이미 있다면 이 부분은 제거할 수 있습니다. (LogTalkAppBar 정의상 Divider가 하단에 있음)
-            // 하지만 UI 이미지를 재현하기 위해 제목 섹션 아래에 Divider를 유지합니다.
             Divider()
 
 
@@ -79,9 +73,6 @@ fun RelatedChatScreen(
         }
     }
 }
-
-// --- 보조 컴포넌트들 (이전과 동일하게 유지) ---
-
 @Composable
 fun RelatedConsultationList(
     items: List<RelatedConsultationItem>,
@@ -131,7 +122,6 @@ fun RelatedConsultationItemView(
             maxLines = 1
         )
     }
-    // 각 항목 하단에 회색 구분선
     Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
 }
 
