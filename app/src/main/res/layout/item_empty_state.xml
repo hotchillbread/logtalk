@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:gravity="center">
 
-    <data>
-        <!-- 필요시 데이터 바인딩 변수 추가 -->
-    </data>
+    <ImageView
+        android:id="@+id/ivEmpty"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@android:drawable/ic_dialog_info"
+        android:alpha="0.3" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="32dp">
+    <TextView
+        android:id="@+id/tvEmptyMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="대화 내역이 없습니다"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="center" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/empty_state_icon"
-            android:textSize="48sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/empty_search_result"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            android:textColor="?android:attr/textColorSecondary" />
-
-    </LinearLayout>
-
-</layout>
+</LinearLayout>
 

@@ -1,24 +1,14 @@
 package com.example.logtalk.di
 
-import com.example.logtalk.domain.chat.ChatRepository
-import com.example.logtalk.domain.chat.ChatUseCase
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ChatModule {
-
-
-    @Provides
-    @Singleton
-    fun provideChatUseCase(
-        repository: ChatRepository
-    ): ChatUseCase {
-        return ChatUseCase(repository = repository)
-    }
+    // 각 UseCase들은 이미 @Inject constructor를 가지고 있어서
+    // Hilt가 자동으로 의존성을 주입합니다.
+    // 별도의 provide 함수가 필요하지 않습니다.
 }
 
