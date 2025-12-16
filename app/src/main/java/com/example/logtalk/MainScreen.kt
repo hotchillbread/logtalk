@@ -29,6 +29,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.example.logtalk.core.utils.Logger
 import com.example.logtalk.ui.chat.screen.ChatScreen
 import com.example.logtalk.ui.chat.viewmodel.ChatViewModel
 import com.example.logtalk.ui.navigation.MainScreenRoutes
@@ -39,6 +40,8 @@ import com.example.logtalk.ui.home.HomeScreen
 import com.example.logtalk.ui.navigation.OtherScreenRoutes
 import com.example.logtalk.ui.groomy.GroomyScreen
 import com.example.logtalk.ui.groomy.GroomyScreenSimple
+import com.example.logtalk.ui.chat.screen.RelatedChatScreen
+import com.example.logtalk.ui.chat.viewmodel.RelatedChatViewModel
 
 @Composable
 fun MainScreen() {
@@ -81,12 +84,13 @@ fun MainScreen() {
 
                     items.forEach { screen ->
                         val isSelected =
-                            currentDestination?.route?.startsWith(screen.route) == true
+                            currentDestination?.hierarchy?.any { it.route == screen.route } == true ||
+                                    (screen == MainScreenRoutes.Chat && currentDestination?.route?.startsWith(MainScreenRoutes.Chat.route) == true)
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
                                 val targetRoute = if (screen == MainScreenRoutes.Chat) {
-                                    "${MainScreenRoutes.Chat.route}/-1"
+                                    "${MainScreenRoutes.Chat.route}/-1" //새 채팅은 항상 -1fh dlehd
                                 } else {
                                     screen.route
                                 }
@@ -159,7 +163,7 @@ fun MainScreen() {
 
             //chat route
             composable(
-                route = "${MainScreenRoutes.Chat.route}/{titleId}", // "chat/{titleId}" 경로
+                route = "${MainScreenRoutes.Chat.route}/{titleId}", // chat/{titleId} 경로
                 arguments = listOf(navArgument("titleId") {
                     type = NavType.LongType
                     defaultValue = -1L
@@ -167,34 +171,53 @@ fun MainScreen() {
             ) { backStackEntry ->
 
                 val chatViewModel = hiltViewModel<ChatViewModel>(backStackEntry)
+                val currentChatId = backStackEntry.arguments?.getLong("titleId") ?: -1L
 
                 //ChatScreen 호출 및 모든 콜백 연결
                 ChatScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                        mainNavController.popBackStack() // 이전 화면으로 돌아가기
                     },
-                    // TODO: 유사 상담 화면으로 이동하는 Navigation 로직 연결
                     onNavigateToSimilarConsultation = {
-                        // mainNavController.navigate("similar_consultation_route")
-                        // 임시로 뒤로가기 대신 로그를 남김
-                        println("DEBUG: Navigate to Similar Consultation")
+                        mainNavController.navigate("related_chat/$currentChatId")
                     },
                     viewModel = chatViewModel
                 )
             }
+
+            composable(
+                route = "related_chat/{consultationId}",
+                arguments = listOf(navArgument("consultationId") {
+                    type = NavType.StringType
+                })
+            ) { backStackEntry ->
+                val consultationId = backStackEntry.arguments?.getString("consultationId") ?: ""
+
+                val relatedChatViewModel = RelatedChatViewModel(consultationId = consultationId)
+
+                RelatedChatScreen(
+                    onBackClick = {
+                        mainNavController.popBackStack() // 뒤로가기(채팅으로)
+                    },
+                    viewModel = relatedChatViewModel
+                )
+            }
+
+
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                        mainNavController.popBackStack() // 이전화면으로
                     }
                 )
             }
+
             composable(OtherScreenRoutes.GROOMY) {
                 android.util.Log.d("MainScreen", "Groomy composable 진입!")
                 GroomyScreenSimple(
                     onBackClick = {
                         android.util.Log.d("MainScreen", "Groomy 뒤로가기 클릭")
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                        mainNavController.popBackStack() // 이전화면
                     }
                 )
             }

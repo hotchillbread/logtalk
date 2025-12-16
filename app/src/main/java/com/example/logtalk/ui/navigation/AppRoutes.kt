@@ -25,6 +25,10 @@ sealed class MainScreenRoutes(
     object Home : MainScreenRoutes("home", "홈", Icons.Default.Home)
     object Chat : MainScreenRoutes("chat", "채팅", Icons.Default.ChatBubble)
     object Settings : MainScreenRoutes("settings", "설정", Icons.Default.Settings)
+
+    companion object {
+        const val ChatDetail = "chat/{titleId}"
+    }
 }
 
 //인증 라우트
@@ -36,4 +40,6 @@ object  AuthScreenRoutes {
 //기타 라우트
 object OtherScreenRoutes {
     const val GROOMY = "groomy"
+
+    const val RELATED_CHAT = "related_chat/{consultationId}"
 }
