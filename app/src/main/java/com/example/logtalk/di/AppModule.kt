@@ -81,7 +81,7 @@ abstract class AppModule { // ✨ @Binds를 사용하므로 abstract로 변경
         @Provides
         @Singleton
         fun provideOpenIllegitimateSummarize(apiKey: String): OpenIllegitimateSummarize {
-            return OpenIllegitimateSummarize(apiKey, firstMessage = "")
+            return OpenIllegitimateSummarize(apiKey)
         }
 
 
