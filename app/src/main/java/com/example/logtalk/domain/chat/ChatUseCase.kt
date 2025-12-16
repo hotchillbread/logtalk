@@ -2,10 +2,13 @@ package com.example.logtalk.domain.chat
 
 import com.example.logtalk.domain.chat.ChatRepository
 import com.example.logtalk.core.utils.Logger
+import com.example.logtalk.core.utils.model.OpenAIEmbeddingService
 import com.example.logtalk.core.utils.model.OpenIllegitimateSummarize
+import com.example.logtalk.data.local.TitleDao
 import com.example.logtalk.ui.chat.data.Message
 import com.example.logtalk.ui.chat.data.Title
 import kotlinx.coroutines.flow.Flow
+import java.nio.ByteBuffer
 import javax.inject.Inject
 
 //메시지 전송 & 응답
@@ -80,19 +83,50 @@ class DeleteChatUseCase @Inject constructor(
 }
 
 class GenerateAndSaveTitleUseCase @Inject constructor(
-    private val chatRepository: ChatRepository,
-    private val titleSummarizer: OpenIllegitimateSummarize // 요약 전용 LLM
+    private val titleDao: TitleDao,
+    private val titleSummarizer: OpenIllegitimateSummarize,
+    private val embeddingGenerator: OpenAIEmbeddingService
 ) {
 
     suspend operator fun invoke(titleId: Long, firstMessageText: String) {
-
-        // LLM에게 제목 요약 요청
+        // 1. LLM에게 제목 요약 요청
         val newTitleText = titleSummarizer.getResponse(firstMessageText)
 
-        // DB 업데이트
-        chatRepository.updateTitleText(titleId, newTitleText)
+        // 2. 임베딩 생성 (List<List<Double>> 형태)
+        val embeddingList: List<List<Double>> = embeddingGenerator.createEmbeddings(listOf(newTitleText))
 
+        // 단일 제목에 대한 단일 임베딩 벡터 (List<Double>)를 가져옵니다.
+        val doubleEmbedding: List<Double>? = embeddingList.firstOrNull()
+        Logger.d(doubleEmbedding.toString())
+        if (doubleEmbedding == null) {
+            Logger.e("Embedding 생성 실패: $newTitleText 에 대한 임베딩 벡터를 얻지 못했습니다.")
+            return
+        }
 
-        Logger.d("$titleId: 제목 업데이트=> '$newTitleText'")
+        // 3. 임베딩 벡터를 TitleData의 ByteArray 타입에 맞게 변환
+        // 변환 함수들이 널이 아닌 ByteArray를 반환한다고 가정
+        val embeddingByteArray: ByteArray = doubleEmbedding.toDoubleArray().toByteArray()
+
+        // 4. 현재 TitleData 가져오기
+        val currentTitle = titleDao.getTitleById(titleId)
+
+        if (currentTitle != null) {
+            // 5. 제목과 임베딩 업데이트
+            val updatedTitle = currentTitle.copy( // TitleData의 data class copy 사용
+                title = newTitleText,
+                embedding = embeddingByteArray
+            )
+
+            titleDao.updateTitle(updatedTitle)
+            Logger.d("$titleId: 제목 및 임베딩 업데이트 완료 => '$newTitleText'")
+        } else {
+            Logger.e("Title with id $titleId not found. 업데이트를 건너뜁니다.")
+        }
     }
+}
+
+fun DoubleArray.toByteArray(): ByteArray {
+    val byteBuffer = ByteBuffer.allocate(this.size * 8) // Double은 8바이트
+    byteBuffer.asDoubleBuffer().put(this)
+    return byteBuffer.array()
 }

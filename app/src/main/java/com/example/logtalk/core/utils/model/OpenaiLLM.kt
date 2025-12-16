@@ -115,32 +115,34 @@ class OpenAILLMChatService(
     }
 }
 
-class OpenIllegitimateSummarize(private val apiKey: String, private val firstMessage: String): OpenaiLLM {
+class OpenIllegitimateSummarize(private val apiKey: String): OpenaiLLM {
 
     private val client = OpenAI(
         token = apiKey,
         timeout = Timeout(socket = 60.seconds)
     )
-    private val titleMessage: MutableList<ChatMessage> = mutableListOf()
-    init {
 
-        titleMessage.add(
+    override suspend fun getResponse(prompt: String): String {
+        val titleMessage = listOf(
+            ChatMessage(
+                role = ChatRole.System,
+                content = "You are a title generator. Summarize the following user's first message into a short, concise title for a conversation. The title should be in Korean."
+            ),
             ChatMessage(
                 role = ChatRole.User,
-                content = "다음 내용을 바탕으로 대화 주제가 무엇인지 간략하게 요약해줘:\n$firstMessage" // 👈
+                content = prompt
             )
         )
-    }
-    override suspend fun getResponse(prompt: String): String {
+
         val request = ChatCompletionRequest(
             model = ModelId("gpt-4o-mini"),
             messages = titleMessage,
-            maxTokens = 2000
+            maxTokens = 50
         )
 
         val response = client.chatCompletion(request)
 
-        return response.choices.firstOrNull()?.message?.content ?: ""
+        return response.choices.firstOrNull()?.message?.content?.trim()?.replace("\"", "") ?: ""
     }
 
 }
