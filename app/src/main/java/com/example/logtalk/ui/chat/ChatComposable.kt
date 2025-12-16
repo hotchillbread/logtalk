@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.* // Material 2 사용
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -31,6 +33,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.SemanticsProperties.ImeAction
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 
 
 @Composable
@@ -41,14 +50,30 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    val logStyle = SpanStyle(color = Color.Black)
+    val talkStyle = SpanStyle(color = Color(0xFF6282E1))
+
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = logStyle) {
+            append("Log")
+        }
+        withStyle(style = talkStyle) {
+            append("Talk")
+        }
+    }
+
     TopAppBar(
         title = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier.height(56.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Log", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                Text(text = "Talk", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF6282E1))
+                Text(
+                    text = annotatedString,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         },
         navigationIcon = {
@@ -75,6 +100,7 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
+                    //여기 누르면 아예 새로운 페이지로 가도록 설정
                     DropdownMenuItem(onClick = { expanded = false; onFindSimilarClick() }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.Search, contentDescription = "비슷한 상담 찾기", tint = ChatColors.TextGray)
@@ -104,9 +130,6 @@ fun LogTalkAppBar(onBackClick: () -> Unit,
     )
 }
 
-/**
- * 채팅 목록을 표시하는 컴포저블
- */
 @Composable
 fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
     val listState = rememberLazyListState()
@@ -126,7 +149,7 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
         state = listState,
         reverseLayout = false // 가장 아래로 스크롤하는 방식이므로 reverseLayout = false 유지
     ) {
-        items(messages, key = { it.id }) { message ->
+        items(messages) { message ->
             MessageBubble(message = message)
         }
     }
@@ -134,18 +157,12 @@ fun ChatContent(messages: List<Message>, modifier: Modifier = Modifier) {
 
 @Composable
 fun MessageBubble(message: Message) {
-    // TODO: (추가 기능) 봇 메시지(isUser=false)를 길게 클릭 시 '신고하기' 등의 컨텍스트 메뉴 표시 로직 구현
+    //여기는 단일 컴포넌트 블럭이라 문제없음
 
     val bubbleShape = if (message.isUser) {
         RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 12.dp, bottomEnd = 0.dp)
     } else {
-        if (message.relatedConsultation != null) {
-            // 관련 상담 블록이 있다면, 하단만 뾰족한 모양으로
-            RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 0.dp)
-        } else {
-            // 일반 봇 메시지
-            RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 12.dp)
-        }
+        RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 0.dp, bottomEnd = 12.dp)
     }
 
     Column(
@@ -169,49 +186,6 @@ fun MessageBubble(message: Message) {
             )
         }
 
-        // 봇 메시지이며 리다이렉션이 있는 경우 (관련 상담 블록)
-        if (!message.isUser && message.relatedConsultation != null) {
-            // TODO: RelatedConsultationBlock에 onQuestionClick 콜백 추가 필요
-            RelatedConsultationBlock(message)
-        }
-    }
-}
-
-@Composable
-fun RelatedConsultationBlock(message: Message, /* onQuestionClick: (String) -> Unit */) {
-    val blockShape = RoundedCornerShape(
-        topStart = 0.dp, topEnd = 0.dp, bottomStart = 8.dp, bottomEnd = 8.dp
-    )
-
-    Card(
-        shape = blockShape,
-        backgroundColor = ChatColors.BackgroundGray,
-        elevation = 0.dp,
-        modifier = Modifier
-            .widthIn(max = 300.dp)
-            .padding(top = 0.dp)
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-            if (message.relatedDate != null && message.directQuestion != null) {
-                Divider(color = ChatColors.TextGray, thickness = 0.5.dp, modifier = Modifier.padding(vertical = 4.dp))
-                Text(
-                    text = "${message.relatedDate} | 관련 상담 내용", // 관련 상담 내용을 텍스트에 추가
-                    color = ChatColors.TextGray,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-                // TODO: 클릭 로직 구현: onQuestionClick(message.directQuestion)
-                Text(
-                    text = message.directQuestion,
-                    color = ChatColors.BackgroundPuple,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .padding(top = 2.dp)
-                    // .clickable { onQuestionClick(message.directQuestion) }
-                )
-            }
-        }
     }
 }
 
@@ -223,7 +197,7 @@ fun MessageInput(
     onMicClick: () -> Unit = {}
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
+
 
     Row(
         modifier = Modifier
@@ -241,6 +215,17 @@ fun MessageInput(
             textStyle = TextStyle(fontSize = 16.sp, color = LocalContentColor.current),
             singleLine = true,
             cursorBrush = SolidColor(ChatColors.BackgroundPuple),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text
+            ),
+
+            keyboardActions = KeyboardActions(
+                onSend = {
+                    if (currentText.isNotBlank()) {
+                        onSendClick()
+                    }
+                }
+            ),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -254,7 +239,7 @@ fun MessageInput(
                 ) {
                     if (currentText.isEmpty()) {
                         Text(
-                            text = "메시지 전송하기",
+                            text = "고민을 입력해주세요",
                             fontSize = 16.sp,
                             color = Color.Gray.copy(alpha = 0.7f)
                         )

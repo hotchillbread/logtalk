@@ -23,19 +23,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
-import com.example.logtalk.ui.chat.data.Message
+import androidx.navigation.navArgument
+import com.example.logtalk.core.utils.Logger
 import com.example.logtalk.ui.chat.screen.ChatScreen
+import com.example.logtalk.ui.chat.viewmodel.ChatViewModel
 import com.example.logtalk.ui.navigation.MainScreenRoutes
-import com.example.logtalk.ui.navigation.OtherScreenRoutes
 
 import com.example.logtalk.ui.settings.SettingsScreen
 import com.example.logtalk.ui.theme.LoginColors
 import com.example.logtalk.ui.home.HomeScreen
+import com.example.logtalk.ui.navigation.OtherScreenRoutes
 import com.example.logtalk.ui.groomy.GroomyScreen
-import com.example.logtalk.ui.insight.InsightScreen
+import com.example.logtalk.ui.chat.screen.RelatedChatScreen
+import com.example.logtalk.ui.chat.viewmodel.RelatedChatViewModel
 
 @Composable
 fun MainScreen() {
@@ -78,11 +83,17 @@ fun MainScreen() {
 
                     items.forEach { screen ->
                         val isSelected =
-                            currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                            currentDestination?.hierarchy?.any { it.route == screen.route } == true ||
+                                    (screen == MainScreenRoutes.Chat && currentDestination?.route?.startsWith(MainScreenRoutes.Chat.route) == true)
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
-                                mainNavController.navigate(screen.route) {
+                                val targetRoute = if (screen == MainScreenRoutes.Chat) {
+                                    "${MainScreenRoutes.Chat.route}/-1" //새 채팅은 항상 -1fh dlehd
+                                } else {
+                                    screen.route
+                                }
+                                mainNavController.navigate(targetRoute) {
                                     popUpTo(mainNavController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -131,42 +142,80 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
 
         ) {
-
             composable(MainScreenRoutes.Home.route) {
                 HomeScreen(
                     onGroomyClick = {
+                        android.util.Log.d("MainScreen", "Groomy 네비게이션 시작!")
                         mainNavController.navigate(OtherScreenRoutes.GROOMY)
+                        android.util.Log.d("MainScreen", "Groomy 네비게이션 명령 완료")
                     },
-                    onInsightClick = {
-                        mainNavController.navigate(OtherScreenRoutes.INSIGHT)
+                    onSessionClick = { sessionId ->
+                        // 기존 세션 클릭 시 해당 채팅방으로 이동
+                        mainNavController.navigate("${MainScreenRoutes.Chat.route}/$sessionId")
+                    },
+                    onNewChatClick = {
+                        // 새 채팅 시작 시 titleId = -1로 이동 (새 세션 생성)
+                        mainNavController.navigate("${MainScreenRoutes.Chat.route}/-1")
                     }
                 )
             }
-        composable(MainScreenRoutes.Chat.route) { ChatScreen(
-            onBackClick = {
-                mainNavController.popBackStack() // 이 코드가 HomeScreen으로 돌아가게 함
-            },
-            viewModel = hiltViewModel()
-        )
-        }
-            //여기서 viewmodel 라우팅 해줘야돼요!!!!!! 꼭 하자 OK?
+
+            //chat route
+            composable(
+                route = "${MainScreenRoutes.Chat.route}/{titleId}", // chat/{titleId} 경로
+                arguments = listOf(navArgument("titleId") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                })
+            ) { backStackEntry ->
+
+                val chatViewModel = hiltViewModel<ChatViewModel>(backStackEntry)
+                val currentChatId = backStackEntry.arguments?.getLong("titleId") ?: -1L
+
+                //ChatScreen 호출 및 모든 콜백 연결
+                ChatScreen(
+                    onBackClick = {
+                        mainNavController.popBackStack() // 이전 화면으로 돌아가기
+                    },
+                    onNavigateToSimilarConsultation = {
+                        mainNavController.navigate("related_chat/$currentChatId")
+                    },
+                    viewModel = chatViewModel
+                )
+            }
+
+            composable(
+                route = "related_chat/{consultationId}",
+                arguments = listOf(navArgument("consultationId") {
+                    type = NavType.StringType
+                })
+            ) { backStackEntry ->
+                val consultationId = backStackEntry.arguments?.getString("consultationId") ?: ""
+
+                val relatedChatViewModel = hiltViewModel<RelatedChatViewModel>(backStackEntry)
+
+                RelatedChatScreen(
+                    onBackClick = {
+                        mainNavController.popBackStack() // 뒤로가기(채팅으로)
+                    },
+                    viewModel = relatedChatViewModel
+                )
+            }
+
+
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
+                        mainNavController.popBackStack() // 이전화면으로
                     }
                 )
             }
+
             composable(OtherScreenRoutes.GROOMY) {
+                android.util.Log.d("MainScreen", "Groomy composable 진입!")
                 GroomyScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // HomeScreen으로 돌아가기
-                    }
-                )
-            }
-            composable(OtherScreenRoutes.INSIGHT) {
-                InsightScreen(
-                    onBackClick = {
+                        android.util.Log.d("MainScreen", "Groomy 뒤로가기 클릭")
                         mainNavController.popBackStack() // HomeScreen으로 돌아가기
                     }
                 )
@@ -174,45 +223,3 @@ fun MainScreen() {
         }
     }
 }
-
-// 테스트용 더미 데이터
-val dummyMessages: List<Message> = listOf(
-    // 1. 봇 메시지 (ID: 1)
-    Message(
-        id = 1L,
-        text = "안녕하세요! 로그톡 봇입니다. 어떤 고민이 있으신가요?",
-        isUser = false
-    ),
-
-    // 2. 사용자 메시지 (ID: 2)
-    Message(
-        id = 2L,
-        text = "요즘 진로 문제 때문에 고민이 많아요. 전공을 바꿔야 할까요?",
-        isUser = true
-    ),
-
-    // 3. 봇 메시지 - 관련 상담 제안 포함 (ID: 3)
-    // relatedConsultation, relatedDate, directQuestion 필드를 활용한 예시
-    Message(
-        id = 3L,
-        text = "사용자님의 고민과 비슷한 내용을 이전에 상담하셨습니다. 관련 상담 내용을 참고해보시는 건 어떨까요?",
-        isUser = false,
-        relatedConsultation = "지난 상담에서는 이직을 고민하셨고, 결국 성공적인 결정을 내리셨습니다.",
-        relatedDate = "2025.11.02",
-        directQuestion = "지금 느끼는 불안감의 핵심 원인은 무엇이라고 생각하시나요?"
-    ),
-
-    // 4. 사용자 메시지 (ID: 4)
-    Message(
-        id = 4L,
-        text = "네, 그때와 비슷한 복잡한 감정인 것 같아요.",
-        isUser = true
-    ),
-
-    // 5. 봇 메시지 (ID: 5)
-    Message(
-        id = 5L,
-        text = "이해합니다. 그럼 저희가 함께 이 문제를 깊이 있게 탐색해 봅시다.",
-        isUser = false
-    )
-)

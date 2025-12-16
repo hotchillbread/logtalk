@@ -1,90 +1,98 @@
 package com.example.logtalk.domain.chat
 
-import android.util.Log
+import com.example.logtalk.domain.chat.ChatRepository
+import com.example.logtalk.core.utils.Logger
+import com.example.logtalk.core.utils.model.OpenIllegitimateSummarize
 import com.example.logtalk.ui.chat.data.Message
+import com.example.logtalk.ui.chat.data.Title
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class ChatUseCase(
-    private val repository: ChatRepository
+//메시지 전송 & 응답
+class SendMessageUseCase @Inject constructor(
+    private val chatRepository: ChatRepository
 ) {
-    suspend fun getBotResponseWithMessageUpdate(
+    suspend operator fun invoke(
         userMessageText: String,
-        currentMessages: List<Message>,
-        parentTitleId: Long = 1L // 임시 기본값 (나중에 HomeViewModel에서 전달받아야 함)
-    ): List<Message> {
-        Log.d("ChatUseCase", "getBotResponseWithMessageUpdate 시작")
-        Log.d("ChatUseCase", "사용자 메시지: $userMessageText")
+        history: List<Message>,
+        parentTitleId: Long
+    ): Message {
+        val userMessage = Message(id = 0L, text = userMessageText, isUser = true)
+        val savedUserMessage = chatRepository.saveMessage(userMessage, parentTitleId)
 
-        // 1. 사용자 메시지 생성
-        val userMessage = Message(
-            id = System.currentTimeMillis(),
-            text = userMessageText,
-            isUser = true
+        // 응답 요청
+        val updatedHistory = history + listOf(savedUserMessage)
+
+        val botResponseText = chatRepository.getBotResponse(userMessageText, updatedHistory)
+
+        val botMessage = Message(id = 0L, text = botResponseText, isUser = false)
+        val savedBotMessage = chatRepository.saveMessage(botMessage, parentTitleId)
+
+        return savedBotMessage
+    }
+}
+
+// 새 채팅방 생성
+class CreateNewChatUseCase @Inject constructor(
+    private val chatRepository: ChatRepository
+) {
+    suspend operator fun invoke(): Long {
+        val newTitle = Title(
+            titleId = 0L, // Room에서 자동 생성될 것입니다.
+            title = "새 대화", // 임시 제목
+            embedding = null,
+            createdAt = System.currentTimeMillis()
         )
 
-        Log.d("ChatUseCase", "사용자 메시지 생성 완료: $userMessage")
-
-        // 2. 사용자 메시지를 DB에 저장
-        try {
-            Log.d("ChatUseCase", "사용자 메시지 DB 저장 시작")
-            repository.saveMessage(userMessage, parentTitleId)
-            Log.d("ChatUseCase", "사용자 메시지 DB 저장 완료")
-        } catch (e: Exception) {
-            Log.e("ChatUseCase", "사용자 메시지 DB 저장 실패", e)
-            throw e
-        }
-
-        val messagesWithUser = currentMessages + userMessage
-        Log.d("ChatUseCase", "현재 메시지 수: ${messagesWithUser.size}")
-
-        // 3. 봇 응답 요청
-        Log.d("ChatUseCase", "봇 응답 요청 시작")
-        val botResponseText = try {
-            repository.getBotResponse(
-                userMessage = userMessageText,
-                history = currentMessages // 전체 맥락 전달
-            )
-        } catch (e: Exception) {
-            Log.e("ChatUseCase", "봇 응답 요청 실패", e)
-            throw e
-        }
-        Log.d("ChatUseCase", "봇 응답 수신: $botResponseText")
-
-        // 4. 봇 메시지 생성
-        val botMessage = Message(
-            id = System.currentTimeMillis() + 1,
-            text = botResponseText,
-            isUser = false,
-        )
-
-        Log.d("ChatUseCase", "봇 메시지 생성 완료: $botMessage")
-
-        // 5. 봇 메시지를 DB에 저장
-        try {
-            Log.d("ChatUseCase", "봇 메시지 DB 저장 시작")
-            repository.saveMessage(botMessage, parentTitleId)
-            Log.d("ChatUseCase", "봇 메시지 DB 저장 완료")
-        } catch (e: Exception) {
-            Log.e("ChatUseCase", "봇 메시지 DB 저장 실패", e)
-            throw e
-        }
-
-        // 6. 새로운 목록 반환
-        val finalMessages = messagesWithUser + botMessage
-        Log.d("ChatUseCase", "최종 메시지 수: ${finalMessages.size}")
-        return finalMessages
+        return chatRepository.insertTitle(newTitle)
     }
+}
 
-    /**
-     * 채팅 기록을 신고합니다.
-     */
-    suspend fun reportChat() {
-        repository.reportChatHistory()
+// 채팅방 목록 조회
+class GetChatListUseCase @Inject constructor(
+    private val chatRepository: ChatRepository
+) {
+    operator fun invoke(): Flow<List<Title>> {
+        return chatRepository.getAllTitles()
     }
+}
 
-    /**
-     * 채팅 기록을 삭제합니다.
-     */
-    suspend fun deleteChat() {
-        repository.deleteChatHistory()
+//채팅 기록 조회
+class GetChatHistoryUseCase @Inject constructor(
+    private val chatRepository: ChatRepository
+) {
+    operator fun invoke(parentTitleId: Long): Flow<List<Message>> {
+        return chatRepository.getMessagesByParentTitleId(parentTitleId)
+    }
+}
+
+//채팅방 삭제
+class DeleteChatUseCase @Inject constructor(
+    private val chatRepository: ChatRepository
+) {
+    suspend operator fun invoke(title: Title) {
+
+        chatRepository.deleteTitle(title)
+
+//llm 히스토리 초기화(메세지 배열 비우기)
+        chatRepository.resetHistory()
+    }
+}
+
+class GenerateAndSaveTitleUseCase @Inject constructor(
+    private val chatRepository: ChatRepository,
+    private val titleSummarizer: OpenIllegitimateSummarize // 요약 전용 LLM
+) {
+
+    suspend operator fun invoke(titleId: Long, firstMessageText: String) {
+
+        // LLM에게 제목 요약 요청
+        val newTitleText = titleSummarizer.getResponse(firstMessageText)
+
+        // DB 업데이트
+        chatRepository.updateTitleText(titleId, newTitleText)
+
+
+        Logger.d("$titleId: 제목 업데이트=> '$newTitleText'")
     }
 }

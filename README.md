@@ -1,34 +1,3 @@
-# LogTalk - AI 상담 앱
-
-## 🚨 빌드 에러 해결
-
-### 일반 빌드 에러 (파일명 문제 등)
-**[QUICK_FIX.md](./QUICK_FIX.md)** 참고
-
-```bash
-chmod +x fix_build_error.sh && ./fix_build_error.sh
-```
-
-### Gradle 캐시 손상 에러
-**에러 예시:** `metadata.bin (No such file or directory)`
-
-**[GRADLE_CACHE_ERROR.md](./GRADLE_CACHE_ERROR.md)** 참고
-
-```bash
-chmod +x fix_all_build_issues.sh && ./fix_all_build_issues.sh
-```
-
-### 올인원 해결 (모든 빌드 문제)
-```bash
-cd /Users/na-gyeong/Desktop/object_programing-2025-2
-chmod +x fix_all_build_issues.sh
-./fix_all_build_issues.sh
-```
-
----
-
-## 프로젝트 구조
-
 ```
 com.example.logtalk
 ├── core

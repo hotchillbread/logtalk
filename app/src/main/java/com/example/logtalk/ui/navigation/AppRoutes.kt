@@ -1,10 +1,10 @@
 package com.example.logtalk.ui.navigation
 
 import androidx.compose.material.icons.Icons
+
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Insights
 import androidx.compose.ui.graphics.vector.ImageVector
 
 //전체 흐름 관리를 위한 싱글톤 객체
@@ -25,7 +25,10 @@ sealed class MainScreenRoutes(
     object Home : MainScreenRoutes("home", "홈", Icons.Default.Home)
     object Chat : MainScreenRoutes("chat", "채팅", Icons.Default.ChatBubble)
     object Settings : MainScreenRoutes("settings", "설정", Icons.Default.Settings)
-    object INSIGHT : MainScreenRoutes("insight", "인사이트", Icons.Default.Insights)
+
+    companion object {
+        const val ChatDetail = "chat/{titleId}"
+    }
 }
 
 //인증 라우트
@@ -37,5 +40,6 @@ object  AuthScreenRoutes {
 //기타 라우트
 object OtherScreenRoutes {
     const val GROOMY = "groomy"
-    const val INSIGHT = "insight"
+
+    const val RELATED_CHAT = "related_chat/{consultationId}"
 }

@@ -1,6 +1,5 @@
 package com.example.logtalk.config
 
-import androidx.compose.foundation.layout.Box
 import com.example.logtalk.BuildConfig
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig

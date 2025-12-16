@@ -19,7 +19,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = rootNavController,
-        startDestination = AppGraph.AUTHENTICATION, //시작시 인증 필수
+        startDestination = AppGraph.AUTHENTICATION, // 로그인 화면부터 시작
         route = AppGraph.ROOT
     ) {
         navigation(

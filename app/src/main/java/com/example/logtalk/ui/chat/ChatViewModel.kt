@@ -1,105 +1,150 @@
 package com.example.logtalk.ui.chat.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.logtalk.domain.chat.ChatUseCase
+import com.example.logtalk.domain.chat.CreateNewChatUseCase
+import com.example.logtalk.domain.chat.DeleteChatUseCase
+import com.example.logtalk.domain.chat.GenerateAndSaveTitleUseCase
+import com.example.logtalk.domain.chat.GetChatHistoryUseCase
+import com.example.logtalk.domain.chat.SendMessageUseCase
 import com.example.logtalk.ui.chat.data.ChatUiState
+import com.example.logtalk.ui.chat.data.Title
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import androidx.lifecycle.SavedStateHandle
+import com.example.logtalk.ui.chat.data.Message
+import com.example.logtalk.core.utils.Logger
+import com.example.logtalk.domain.chat.ChatRepository
+
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatUseCase: ChatUseCase
-) : ViewModel() {
+    private val createNewChatUseCase: CreateNewChatUseCase,
+    private val getChatHistoryUseCase: GetChatHistoryUseCase,
+    private val sendMessageUseCase: SendMessageUseCase,
+    private val deleteChatUseCase: DeleteChatUseCase,
+    private val generateAndSaveTitleUseCase: GenerateAndSaveTitleUseCase,
 
-    //UI 상태
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    //네비게이션 세팅해줘야함
+    private val initialTitleId: Long = savedStateHandle.get<Long>("titleId") ?: -1L
+
     var uiState by mutableStateOf(ChatUiState())
         private set
 
-    // 입력 텍스트 변경
+    private var currentTitleId: Long = initialTitleId
+
+    private var isFirstMessageSent: Boolean = false
+    private var currentChatTitle: Title? = null
+
+    //라우팅 핸들링용
+    init {
+        handleChatInitialization()
+    }
+
+    //초기화
+    private fun handleChatInitialization() {
+        viewModelScope.launch {
+            if (currentTitleId == -1L) {
+                currentTitleId = createNewChatUseCase()
+                isFirstMessageSent = false
+            } else {
+                isFirstMessageSent = true
+            }
+
+            observeChatHistory(currentTitleId)
+        }
+    }
+
+    private fun observeChatHistory(titleId: Long) {
+        viewModelScope.launch {
+            getChatHistoryUseCase(titleId).collectLatest { messages ->
+
+                Logger.d("Flow COLLECTED: Message count = ${messages.size}")
+
+                uiState = uiState.copy(
+                    messages = messages,
+                    isLoading = false
+                )
+                isFirstMessageSent = messages.size >= 2
+            }
+        }
+    }
+
     fun updateTextInput(newText: String) {
         uiState = uiState.copy(textInput = newText)
     }
 
-    // 메시지 전송 로직
     fun sendMessage() {
-        Log.d("ChatViewModel", "sendMessage 호출됨")
-        if (uiState.textInput.isBlank()) {
-            Log.d("ChatViewModel", "입력이 비어있음")
-            return
-        }
-
+        if (uiState.textInput.isBlank() || uiState.isLoading) return
         val userMessageText = uiState.textInput
-        Log.d("ChatViewModel", "메시지 전송: $userMessageText")
-        updateTextInput("") // 입력 필드 초기화
+        val history = uiState.messages
 
-        // 로딩 상태 표시
-        uiState = uiState.copy(isLoading = true)
+        val newUserMessage = Message(
+            id = System.currentTimeMillis(), // 임시 ID
+            text = userMessageText,
+            isUser = true
+        )
+
+        //메세지 배열에 추가라 여기는 문제없음
+        uiState = uiState.copy(
+            messages = history + newUserMessage,
+            textInput = "",
+            isLoading = true,
+            errorMessage = null // 이전 오류 메시지 초기화
+        )
 
         viewModelScope.launch {
             try {
-                Log.d("ChatViewModel", "ChatUseCase 호출 시작")
-                // ChatUseCase를 통해 사용자 메시지 전송 및 봇 응답 받기
-                val updatedMessages = chatUseCase.getBotResponseWithMessageUpdate(
-                    userMessageText = userMessageText,
-                    currentMessages = uiState.messages
-                )
+                sendMessageUseCase(userMessageText, history, currentTitleId)
 
-                Log.d("ChatViewModel", "업데이트된 메시지 수: ${updatedMessages.size}")
-                uiState = uiState.copy(
-                    messages = updatedMessages,
-                    isLoading = false
-                )
-                Log.d("ChatViewModel", "UI 상태 업데이트 완료")
+                if (!isFirstMessageSent) {
+                    Logger.d("제목 텍스트: $userMessageText")
+                    generateAndSaveTitleUseCase(currentTitleId, userMessageText)
+                    isFirstMessageSent = true
+                }
             } catch (e: Exception) {
-                // 에러 발생 시 처리
-                Log.e("ChatViewModel", "메시지 전송 중 에러 발생", e)
                 uiState = uiState.copy(
+                    errorMessage = "메시지 전송 실패: ${e.localizedMessage}",
+                    messages = history,
                     isLoading = false
                 )
+                Logger.e("전송 실패")
             }
         }
     }
 
-    // TODO: 음성 메시지 전송 로직 구현 (후순위)
-    fun sendVoiceMessage() {
-        // 음성 녹음 시작/중지 및 변환 로직 구현
-    }
-
-    // TODO: 비슷한 상담 찾기 로직 구현
-    fun findSimilarConsultation() {
-        // 홈 화면 또는 별도의 검색 화면으로 이동/API 호출 로직 구현
-    }
-
-    // 채팅 신고 로직
     fun reportChat() {
         viewModelScope.launch {
-            try {
-                chatUseCase.reportChat()
-                // TODO: 신고 완료 메시지 표시
-            } catch (e: Exception) {
-                // TODO: 에러 처리
-            }
+            uiState = uiState.copy(errorMessage = "신고가 접수되었습니다. (로직 임시 처리)")
         }
     }
 
-    // 채팅 삭제 로직
-    fun deleteChat() {
+    fun deleteChat(onChatDeleted: () -> Unit) {
         viewModelScope.launch {
             try {
-                chatUseCase.deleteChat()
-                // 채팅 기록 초기화
-                uiState = uiState.copy(messages = emptyList())
-                // TODO: 삭제 완료 메시지 표시
+                val titleToDelete = Title(titleId = currentTitleId, title = "", embedding = null, createdAt = 0L)
+                deleteChatUseCase(titleToDelete)
+                onChatDeleted()
             } catch (e: Exception) {
-                // TODO: 에러 처리
+                uiState = uiState.copy(errorMessage = "채팅방 삭제 실패: ${e.localizedMessage}")
             }
         }
     }
-}
 
+    fun findSimilarConsultation() {
+        uiState = uiState.copy(errorMessage = "유사 상담 찾기 화면으로 이동합니다.")
+    }
+
+    fun sendVoiceMessage() {
+        uiState = uiState.copy(errorMessage = "음성 메시지 기능은 준비 중입니다.")
+    }
+}

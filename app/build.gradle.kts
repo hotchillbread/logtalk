@@ -1,23 +1,16 @@
 import java.util.Properties
 
 plugins {
+    id("com.google.dagger.hilt.android")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.androidx.navigation.safeargs)
     id("org.jetbrains.kotlin.kapt")
+    id("androidx.navigation.safeargs.kotlin")
     //firebase
     id("com.google.gms.google-services")
 }
-
-// local.properties에서 비밀키 로드
-val localProps = Properties().apply {
-    val file = project.rootProject.file("local.properties")
-    if (file.exists()) load(file.inputStream())
-}
-val openaiApiKey: String = localProps.getProperty("openaiApiKey") ?: ""
 
 android {
     namespace = "com.example.logtalk"
@@ -31,9 +24,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // 모든 빌드 타입에서 접근 가능한 BuildConfig 필드로 노출
-        buildConfigField("String", "OPENAI_API_KEY", "\"${openaiApiKey}\"")
     }
 
     buildTypes {
@@ -44,13 +34,23 @@ android {
                 "proguard-rules.pro"
             )
         }
-        debug {
-            // debug 전용 추가 설정이 필요하면 여기에 배치
+        buildTypes {
+            debug {
+                val properties = Properties()
+                properties.load(project.rootProject.file("local.properties").inputStream())
+
+                this.buildConfigField(
+                    "String",
+                    "OPENAI_API_KEY",
+                    properties.getProperty("openaiApiKey") ?: "\"\""
+                )
+            }
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -64,6 +64,9 @@ android {
 }
 
 dependencies {
+
+    // Java 8+ API desugaring (java.time 패키지 등을 API 24+에서 사용 가능)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     // 기본 compose, android 의존성 패키지
     implementation(libs.androidx.core.ktx)

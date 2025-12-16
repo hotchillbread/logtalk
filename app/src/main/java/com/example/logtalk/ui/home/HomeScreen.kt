@@ -6,24 +6,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.logtalk.ui.home.binding.HomeBindings
 
 // Home 화면 - 실제 디자인 구현
 @Composable
 fun HomeScreen(
     onGroomyClick: () -> Unit = {},
-    onInsightClick: () -> Unit = {}
+    onSessionClick: (Long) -> Unit = {},
+    onNewChatClick: () -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    // 임시 세션 데이터
-    val sessions = remember {
-        listOf(
-            SessionData(1, "너 생각에는 내가 재수강을 하는 게 좋을까?", "아 그러냐 넌 왜 그렇게 생각해? 3줄로 말해", "54분 전"),
-            SessionData(2, "너 생각에는 내가 재수강을 하는 게 좋을까?", "아 그러냐 넌 왜 그렇게 생각해? 3줄로 말해", "1일 전"),
-            SessionData(3, "너 생각에는 내가 재수강을 하는 게 좋을까?", "아 그러냐 넌 왜 그렇게 생각해? 3줄로 말해", "11월 1일"),
-            SessionData(4, "너 생각에는 내가 재수강을 하는 게 좋을까?", "아 그러냐 넌 왜 그렇게 생각해? 3줄로 말해", "10월 29일")
-        )
-    }
+    val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
-    var showEmptyState by remember { mutableStateOf(false) }
+    // NavEvent 처리
+    LaunchedEffect(Unit) {
+        viewModel.navEvents.collect { event ->
+            when (event) {
+                is HomeViewModel.NavEvent.ToChat -> onSessionClick(event.sessionId)
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -31,10 +35,7 @@ fun HomeScreen(
             .background(Color.White)
     ) {
         // 헤더
-        HomeHeader(
-            onGroomyClick = onGroomyClick,
-            onInsightClick = onInsightClick
-        )
+        HomeHeader(onGroomyClick = onGroomyClick)
 
         androidx.compose.material3.HorizontalDivider(
             color = Color(0xFFF0F0F0),
@@ -42,7 +43,7 @@ fun HomeScreen(
         )
 
         // 상담 시작 배너
-        NewChatBanner(onClick = { /* TODO: 새 상담 시작 */ })
+        NewChatBanner(onClick = onNewChatClick)
 
         androidx.compose.material3.HorizontalDivider(
             color = Color(0xFFF0F0F0),
@@ -50,7 +51,12 @@ fun HomeScreen(
         )
 
         // 검색 바
-        SearchBar()
+        SearchBar(
+            query = searchQuery,
+            onQueryChange = { query ->
+                viewModel.sendIntent(HomeIntent.SearchChanged(query))
+            }
+        )
 
         androidx.compose.material3.HorizontalDivider(
             color = Color(0xFFF0F0F0),
@@ -59,11 +65,51 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 세션 목록 또는 빈 상태
-        if (showEmptyState || sessions.isEmpty()) {
-            EmptyState()
-        } else {
-            SessionList(sessions = sessions)
+        // 상태에 따른 UI 표시
+        when (uiState) {
+            is HomeUiState.Loading -> {
+                // 로딩 상태
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    androidx.compose.material3.CircularProgressIndicator()
+                }
+            }
+            is HomeUiState.Empty -> {
+                EmptyState(searchQuery = searchQuery)
+            }
+            is HomeUiState.Content -> {
+                val content = uiState as HomeUiState.Content
+                val sessions = content.items
+                    .filterIsInstance<com.example.logtalk.ui.home.adapter.item.HomeItem.SessionItem>()
+                    .map { item ->
+                        SessionData(
+                            id = item.id,
+                            title = item.title,
+                            lastMessage = item.lastMessage ?: "",
+                            timeAgo = HomeBindings.formatRelativeTime(item.updatedAt)
+                        )
+                    }
+                SessionList(
+                    sessions = sessions,
+                    onSessionClick = { sessionId ->
+                        viewModel.sendIntent(HomeIntent.CardClicked(sessionId))
+                    }
+                )
+            }
+            is HomeUiState.Error -> {
+                // 에러 상태
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    androidx.compose.material3.Text(
+                        text = (uiState as HomeUiState.Error).message,
+                        color = Color.Red
+                    )
+                }
+            }
         }
     }
 }

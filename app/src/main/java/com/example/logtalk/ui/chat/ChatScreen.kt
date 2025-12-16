@@ -1,41 +1,45 @@
 package com.example.logtalk.ui.chat.screen
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
+import androidx.compose.material.Snackbar
+import androidx.compose.material.Button
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.example.logtalk.ui.chat.composable.ChatContent
 import com.example.logtalk.ui.chat.composable.LogTalkAppBar
 import com.example.logtalk.ui.chat.composable.MessageInput
 import com.example.logtalk.ui.chat.viewmodel.ChatViewModel
-
+import com.example.logtalk.ui.theme.ChatColors // 가정된 색상
 
 @Composable
 public fun ChatScreen(
-    // TODO: NavController 또는 Navigation 콜백을 위한 파라미터 추가
     onBackClick: () -> Unit,
-    // ViewModel은 Hilt/Koin 등의 DI 라이브러리를 통해 주입받는 것이 권장되지만, 여기서는 임시로 viewModel() 사용
+    onNavigateToSimilarConsultation: () -> Unit,
+
     viewModel: ChatViewModel
 ) {
     val uiState = viewModel.uiState
 
+
     Scaffold(
         topBar = {
             LogTalkAppBar(
-                onBackClick = onBackClick, // 뒤로 가기 콜백
+                onBackClick = onBackClick, // 뒤로 가기
                 onFindSimilarClick = {
-                    // TODO: 비슷한 상담 찾기 Navigation 로직 구현 (후순위)
+                    // 뷰모델 상태 업데이트 후 Navigation 실행
                     viewModel.findSimilarConsultation()
+                    onNavigateToSimilarConsultation() // 실제 화면 이동 실행
                 },
-                onReportClick = {
-                    // TODO: 신고 기능 로직 구현 (후순위)
-                    viewModel.reportChat()
-                },
+                onReportClick = viewModel::reportChat, // 신고 기능
                 onDeleteChatClick = {
-                    // TODO: 대화 삭제 기능 로직 구현 (
-                    viewModel.deleteChat()
+                    viewModel.deleteChat(onChatDeleted = onBackClick)
                 }
             )
         },
@@ -44,7 +48,7 @@ public fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .imePadding() // 키보드가 올라올 때 레이아웃이 밀리지 않도록 처리
+                .imePadding()
         ) {
             Divider()
 
@@ -53,13 +57,20 @@ public fun ChatScreen(
                 modifier = Modifier.weight(1f)
             )
 
-            // TODO: (추가 기능) uiState.isLoading 상태에 따라 로딩 인디케이터 표시 로직 구현
+            if (uiState.isLoading) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth().height(4.dp),
+                    color = ChatColors.BackgroundPuple // 가정된 색상
+                )
+            } else {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
 
             MessageInput(
-                currentText = uiState.textInput,
-                onTextChange = viewModel::updateTextInput, // 텍스트 변경
-                onSendClick = viewModel::sendMessage,      // 메시지 전송
-                onMicClick = viewModel::sendVoiceMessage   // 마이크 클릭
+                currentText = uiState.textInput ?: "",
+                onTextChange = viewModel::updateTextInput,
+                onSendClick = viewModel::sendMessage,
+                onMicClick = viewModel::sendVoiceMessage
             )
         }
     }
