@@ -33,8 +33,8 @@ interface MessageDao {
     @Query("SELECT COUNT(messageId) FROM messages WHERE parentTitleId = :parentTitleId")
     suspend fun getMessageCount(parentTitleId: Long): Int
 
-    //전체 메시지 개수 가져오기 (Groomy용)
-    @Query("SELECT COUNT(*) FROM messages")
+    //전체 사용자 메시지 개수 가져오기 (Groomy용 - AI 답변 제외)
+    @Query("SELECT COUNT(*) FROM messages WHERE sender = 'User'")
     fun getTotalMessageCount(): Flow<Int>
 }
 

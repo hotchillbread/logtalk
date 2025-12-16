@@ -59,7 +59,7 @@ fun HomeHeader(onGroomyClick: () -> Unit = {}) {
                 onGroomyClick()
             }) {
                 Icon(
-                    imageVector = Icons.Default.Description,
+                    imageVector = Icons.Default.Cloud,
                     contentDescription = "Groomy",
                     tint = Color.Gray
                 )
