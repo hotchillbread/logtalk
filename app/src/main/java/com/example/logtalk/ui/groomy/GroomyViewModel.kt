@@ -13,8 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 
-//Groomy 화면 ViewModel
-//채팅 횟수 기반으로 감정 progress를 계산
+//Groomy 화면 ViewModel - 채팅 횟수 기반으로 감정 progress를 계산
 @HiltViewModel
 class GroomyViewModel @Inject constructor(
     getTotalMessageCount: GetTotalMessageCountUseCase

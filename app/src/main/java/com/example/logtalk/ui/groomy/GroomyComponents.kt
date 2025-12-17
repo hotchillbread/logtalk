@@ -111,7 +111,17 @@ fun ProgressBarWithCloud(
                 fontSize = 14.sp
             )
             Text(
+                text = "25%",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            Text(
                 text = "50%",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            Text(
+                text = "75%",
                 color = Color.Gray,
                 fontSize = 14.sp
             )

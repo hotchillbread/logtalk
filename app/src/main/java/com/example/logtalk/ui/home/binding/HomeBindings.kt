@@ -14,14 +14,14 @@ import kotlin.math.abs
 
 object HomeBindings { //상태가 필요없어서 싱글톤 유틸 객체가 적합
 
-    // 리스트 바인딩
+    //리스트 바인딩
     @JvmStatic
     @BindingAdapter("homeItems")
     fun RecyclerView.setHomeItems(items: List<HomeItem>?) {
         (adapter as? HomeAdapter)?.submitList(items ?: emptyList())
     }
 
-    // 상대 시간 표시 ("54분 전", "1일 전")
+    //상대시간 표시
     @JvmStatic
     fun formatRelativeTime(instant: Instant?): String {
         if (instant == null) return ""
@@ -37,7 +37,7 @@ object HomeBindings { //상태가 필요없어서 싱글톤 유틸 객체가 적
         }
     }
 
-    // TextView에 상대 시간 바인딩
+    //TextView에 상대 시간 바인딩
     @JvmStatic
     @BindingAdapter("timeAgo")
     fun TextView.bindTimeAgo(instant: Instant?) {

@@ -8,6 +8,6 @@ class EmptyViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind() {
-        // 정적 문구/아이콘만 표시하는 경우 바인딩 로직 없이도 OK
+        //정적이라 필요없긴함
     }
 }

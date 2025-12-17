@@ -110,8 +110,6 @@ class HomeFragment : Fragment(), HomeNavigator {
         binding.progress.visibility = View.GONE
         binding.emptyGroup.visibility = View.VISIBLE
         binding.recycler.visibility = View.GONE
-        // 빈 리스트 + 헤더를 보여주고 싶다면 아래처럼 대체 가능
-        // adapter.submitList(listOf(HomeItem.HeaderItem, HomeItem.EmptyItem))
     }
 
     private fun renderContent(items: List<HomeItem>) {

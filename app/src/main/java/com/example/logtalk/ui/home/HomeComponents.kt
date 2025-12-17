@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logtalk.R
 import android.util.Log
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun HomeHeader(
@@ -33,7 +35,7 @@ fun HomeHeader(
             .height(56.dp)
             .padding(horizontal = 16.dp)
     ) {
-        // 로고 (중앙)
+        //로고 (중앙)
         Row(
             modifier = Modifier.align(Alignment.Center),
             verticalAlignment = Alignment.CenterVertically
@@ -52,7 +54,7 @@ fun HomeHeader(
             )
         }
 
-        // 아이콘 버튼들 (오른쪽)
+        //아이콘 버튼들 (오른쪽)
         Row(
             modifier = Modifier.align(Alignment.CenterEnd),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -104,14 +106,14 @@ fun NewChatBanner(onClick: () -> Unit) {
                     .padding(horizontal = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // ChatGPT 아이콘 (Linear Gradient: #6282E1 → #FEC3FF)
+                //ChatGPT 아이콘
                 ChatGPTIconWithGradient(
                     modifier = Modifier.size(32.dp)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // 텍스트
+                //텍스트
                 Column {
                     Text(
                         text = "상담을 시작해볼까요?",
@@ -167,7 +169,7 @@ fun SearchBar(
                     .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 검색 아이콘
+                //검색 아이콘
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "검색",
@@ -177,7 +179,7 @@ fun SearchBar(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // 검색 입력 필드
+                //검색 입력 필드
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.CenterStart
@@ -189,11 +191,11 @@ fun SearchBar(
                             fontSize = 14.sp
                         )
                     }
-                    androidx.compose.foundation.text.BasicTextField(
+                    BasicTextField(
                         value = query,
                         onValueChange = onQueryChange,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = androidx.compose.ui.text.TextStyle(
+                        textStyle = TextStyle(
                             fontSize = 14.sp,
                             color = Color.Black
                         ),
@@ -297,7 +299,7 @@ fun SessionCard(
                     .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 텍스트 내용
+                //텍스트 내용
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -322,7 +324,7 @@ fun SessionCard(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // 시간
+                //시간
                 Text(
                     text = session.timeAgo,
                     fontSize = 12.sp,
@@ -359,7 +361,7 @@ fun EmptyState(searchQuery: String = "") {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // 아이콘
+        //아이콘
         Box(
             modifier = Modifier
                 .size(120.dp)

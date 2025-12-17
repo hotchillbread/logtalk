@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.logtalk.databinding.ItemSessionCardBinding
 import com.example.logtalk.ui.home.adapter.item.HomeItem
-import com.example.logtalk.ui.home.binding.HomeBindings // for extension helpers, optional
+import com.example.logtalk.ui.home.binding.HomeBindings
 
 class SessionCardViewHolder(
     private val binding: ItemSessionCardBinding,

@@ -70,7 +70,7 @@ class HomeAdapter(
         private val binding: ItemHomeHeaderBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind() {
-            // 배너(“상담을 시작해볼까요?”)의 정적 문구/애니메이션 등 바인딩
+            //지금은 정적이라 필요없는데, 나중에 바뀔 수도 있어서 걍 둠
         }
     }
 }
