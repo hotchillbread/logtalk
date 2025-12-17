@@ -21,7 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onPersonaEditClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -128,22 +129,15 @@ fun SettingsScreen(
                 }
             },
 
-            // 버튼 텍스트와 색상 분기 (저장/편집 모드)
-            buttonText = if (uiState.isEditingPersona) "저장" else "편집",
-            buttonColor = if (uiState.isEditingPersona) Color.Black else Color.White,
-            showCancelButton = uiState.isEditingPersona,
-            onCancel = if (uiState.isEditingPersona) {
-                { viewModel.sendIntent(SettingsIntent.CancelEdit) }
-            } else null,
+            // 버튼 텍스트와 색상 분기
+            buttonText = "키워드 설정",
+            buttonColor = Color.White,
+            showCancelButton = false,
+            onCancel = null,
 
             onClick = {
-                if (uiState.isEditingPersona) {
-                    // 저장 시 현재 편집 중인 임시 데이터를 전달 (SavePersona Intent)
-                    viewModel.sendIntent(SettingsIntent.SavePersona(uiState.currentEditingPersona))
-                } else {
-                    // 편집 모드 진입 (ClickEditPersona Intent)
-                    viewModel.sendIntent(SettingsIntent.ClickEditPersona)
-                }
+                // 키워드 선택 화면으로 이동
+                onPersonaEditClick()
             }
         )
 

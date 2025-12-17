@@ -217,7 +217,10 @@ fun MainScreen() {
             composable(MainScreenRoutes.Settings.route) {
                 SettingsScreen(
                     onBackClick = {
-                        mainNavController.popBackStack() // 이전화면으로
+                        mainNavController.popBackStack()
+                    },
+                    onPersonaEditClick = {
+                        mainNavController.navigate(OtherScreenRoutes.KEYWORD_SELECTION)
                     }
                 )
             }
@@ -246,6 +249,16 @@ fun MainScreen() {
                                 inclusive = true
                             }
                         }
+                    }
+                )
+            }
+
+            composable(OtherScreenRoutes.KEYWORD_SELECTION) {
+                android.util.Log.d("MainScreen", "키워드 선택 화면 진입!")
+                com.example.logtalk.ui.settings.KeywordSelectionScreen(
+                    onNavigateBack = {
+                        android.util.Log.d("MainScreen", "키워드 선택 뒤로가기 클릭")
+                        mainNavController.popBackStack()
                     }
                 )
             }

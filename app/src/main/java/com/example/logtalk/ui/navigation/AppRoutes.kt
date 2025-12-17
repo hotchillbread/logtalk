@@ -41,5 +41,6 @@ object  AuthScreenRoutes {
 object OtherScreenRoutes {
     const val GROOMY = "groomy"
     const val INSIGHT = "insight"
+    const val KEYWORD_SELECTION = "keyword_selection"
     const val RELATED_CHAT = "related_chat/{consultationId}"
 }
